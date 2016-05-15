@@ -59,8 +59,6 @@ var Link = makeClass ( Link, function ( arg ) {
 			}
 		};
 	},
-	toggleShape: function ( ) {
-	},
 	toggleStyle: function ( ) {
 	},
 	clearView: function ( ) {
@@ -121,47 +119,69 @@ var Link = makeClass ( Link, function ( arg ) {
 			w: 0,
 			h: 0,
 		},
-		aoff = this.from != null ? v2dToOffN( a, A ) : {
+		aoff = this.from != null ? v2d.p( a, A ) : {
 			x: 0,
 			y: 0,
 		},
-		boff = this.to != null ? v2dToOffN( b, B ) : {
+		boff = this.to != null ? v2d.p( b, B ) : {
 			x: 0,
 			y: 0,
 		},
-		// aoff = this.from != null ? {
-		// 	x: a.offset.x,
-		// 	y: a.offset.y,
-		// } : {
-		// 	x: 0,
-		// 	y: 0,
-		// },
-		// boff = this.to != null ? {
-		// 	x: b.offset.x,
-		// 	y: b.offset.y,
-		// } : {
-		// 	x: 0,
-		// 	y: 0,
-		// },
-		BAd = {
-			x: B.x - A.x,
-			y: B.y - A.y,
-		}
-		;
+		BAd = v2d.d( B, A ),
+		bad = v2d.d( b, a );
 
-		BAdst = Math.sqrt( BAd.x * BAd.x + BAd.y * BAd.y );
+		var BAD = v2d.l( BAd );
+		var baD = v2d.l( bad );
 
 		var
 		aout = {
-			x: A.x + aoff.x * BAdst,
-			y: A.y + aoff.y * BAdst,
+			x: A.x + aoff.x * BAD,
+			y: A.y + aoff.y * BAD,
 		},
 		bout = {
-			x: B.x + boff.x * BAdst,
-			y: B.y + boff.y * BAdst,
+			x: B.x + boff.x * BAD,
+			y: B.y + boff.y * BAD,
 		},
-		BAoff = v2dToOffN( B, A ),
-		ABoff = v2dToOffN( A, B ),
+		aout2 = {
+			x: A.x + aoff.x * BAD / 2,
+			y: A.y + aoff.y * BAD / 2,
+		},
+		bout2 = {
+			x: B.x + boff.x * BAD / 2,
+			y: B.y + boff.y * BAD / 2,
+		},
+		BAoff = v2d.p( B, A ),
+		ABoff = v2d.p( A, B ),
+		M = {
+			x: ( A.x + B.x ) / 2,
+			y: ( A.y + B.y ) / 2,
+		},
+		m = {
+			x: ( a.x + b.x ) / 2,
+			y: ( a.y + b.y ) / 2,
+		},
+		Mmd = v2d.d( M, m ),
+		Mmdst = v2d.l( Mmd );
+		
+
+		var p = [
+			{
+				x: a.x + aoff.x * A.w / 2,
+				y: a.y + aoff.y * A.h / 2,
+			},
+			{
+				x: M.x + BAD / 2 * -BAoff.y,
+				y: M.y + BAD / 2 * BAoff.x,
+			},
+			{
+				x: M.x + BAD / 2 * BAoff.y,
+				y: M.y + BAD / 2 * -BAoff.x,
+			},
+			{
+				x: b.x + boff.x * B.w / 2,
+				y: b.y + boff.y * B.h / 2,
+			},
+		],
 		afac = {
 			x: BAoff.x * aoff.x,
 			y: BAoff.y * aoff.y,
@@ -170,37 +190,20 @@ var Link = makeClass ( Link, function ( arg ) {
 			x: ABoff.x * boff.x,
 			y: ABoff.y * boff.y,
 		},
-		m = {
-			x: ( A.x + B.x ) / 2,
-			y: ( A.y + B.y ) / 2,
-		},
-		p = [
-			{
-				x: a.x + aoff.x * A.w / 2,
-				y: a.y + aoff.y * A.h / 2,
-			},
-			{
-				x: m.x + BAdst / 2 * -BAoff.y,
-				y: m.y + BAdst / 2 * BAoff.x,
-			},
-			{
-				x: m.x + BAdst / 2 * BAoff.y,
-				y: m.y + BAdst / 2 * -BAoff.x,
-			},
-			{
-				x: b.x + boff.x * B.w / 2,
-				y: b.y + boff.y * B.h / 2,
-			},
-		],
 		fac = afac.x + afac.y + bfac.x + bfac.y,
 		i = lineInters( a, aout, b, bout )
 		;
 
+		App.log(  );
+
 		attribute = '';
+		attribute += ( i.a && i.b ) ? ('M ' + M.x + ',' + M.y + ' ' + 'L ' + i.x + ',' + i.y + ' ') : '' ;
 		attribute += 'M ' + a.x + ',' + a.y + ' ' + 'L ' + p[0].x + ',' + p[0].y + ' ';
 		attribute += 'M ' + b.x + ',' + b.y + ' ' + 'L ' + p[3].x + ',' + p[3].y + ' ';
-		attribute += 'M ' + m.x + ',' + m.y + ' ' + 'L ' + p[1].x + ',' + p[1].y + ' ';
-		attribute += 'M ' + m.x + ',' + m.y + ' ' + 'L ' + p[2].x + ',' + p[2].y + ' ';
+		attribute += 'M ' + M.x + ',' + M.y + ' ' + 'L ' + p[1].x + ',' + p[1].y + ' ';
+		attribute += 'M ' + M.x + ',' + M.y + ' ' + 'L ' + p[2].x + ',' + p[2].y + ' ';
+		attribute += 'M ' + A.x + ',' + A.y + ' ' + 'L ' + aout2.x + ',' + aout2.y + ' ';
+		attribute += 'M ' + B.x + ',' + B.y + ' ' + 'L ' + bout2.x + ',' + bout2.y + ' ';
 
 		attribute += 'M ' + a.x + ',' + a.y + ' ';
 
@@ -212,7 +215,7 @@ var Link = makeClass ( Link, function ( arg ) {
 			attribute +=
 			'C ' + p[0].x + ',' + p[0].y + ' ' +
 			' ' + p[1].x + ',' + p[1].y + ' ' +
-			' ' + m.x + ',' + m.y + ' ' +
+			' ' + M.x + ',' + M.y + ' ' +
 			'C ' + p[2].x + ',' + p[2].y + ' ' +
 			' ' + p[3].x + ',' + p[3].y + ' ' +
 			' ' + b.x + ',' + b.y + ' '

@@ -36,14 +36,6 @@ var isDOM = function ( arg ) {
 	return isDOMNode( arg ) || isDOMElement( arg );
 };
 
-var v2dToOffN = function ( dim1, dim2 ) { //Converts vector to 0-1 range normalized
-	var x = dim1.x - dim2.x;
-	var y = dim1.y - dim2.y;
-	var r = Math.sqrt( x * x + y * y );
-	x = x != 0 ? x / r : 0;
-	y = y != 0 ? y / r : 0;
-	return { x: x, y: y };
-};
 
 var makeClass = function ( name, constructor, properties ) {
 	name = constructor;
@@ -147,22 +139,27 @@ var lineInters = function ( a, A, b, B ) {
 	};
 };
 
-var sortPoints = function ( start, finish, points ) {
-};
 
-// function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
-// 	var denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
-// 	if (denominator == 0) {
-// 		return false;
-// 	}
-// 	var a = line1StartY - line2StartY;
-// 	var b = line1StartX - line2StartX;
-// 	var n1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b) / denominator;
-// 	var n2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b) / denominator;
-// 	return {
-// 		x: line1StartX + (n1 * (line1EndX - line1StartX)), //line2StartX + (n2 * (line2EndX - line2StartX)),
-// 		y: line1StartY + (n1 * (line1EndY - line1StartY)), //line2StartX + (n2 * (line2EndY - line2StartY)),
-// 		a: n1 > 0 && n1 < 1,
-// 		b: n2 > 0 && n2 < 1,
-// 	};
-// };
+var v2d = {
+	p: function ( A, B ) { // polar vector to A from B
+		var d = this.d( B, A );
+		var l = this.l( d );
+		return { x: d.x / l, y: d.y / l };
+	},
+	d: function ( A, B ) { // delta of coordinates
+		return {
+			x: B.x - A.x,
+			y: B.y - A.y,
+		};
+	},
+	D: function ( A, B ) { // distance between points
+		var d = {
+			x: B.x - A.x,
+			y: B.y - A.y,
+		};
+		return this.l( d );
+	},
+	l: function ( V ) { // length of vector
+		return Math.sqrt( V.x * V.x + V.y * V.y );
+	},
+};
