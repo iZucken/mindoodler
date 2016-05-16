@@ -86,7 +86,7 @@ var behaviors = {
 				&& Controller.links
 				&& this !== Controller.links.obj.view.block
 			) {
-				var offset = v2dToOffN( Controller.pos, block.dims );
+				var offset = v2d.p( Controller.pos, block.dims );
 				new Link({
 					from: Controller.links.obj,
 					fromPoint: Controller.links.dim,
@@ -107,7 +107,7 @@ var behaviors = {
 				Controller.dragOrigin = Controller.pos;
 			}
 			if ( Controller.state == 'linking' ) {
-				var offset = v2dToOffN( Controller.pos, block.dims );
+				var offset = v2d.p( Controller.pos, block.dims );
 				Controller.links = {
 					obj: block,
 					dim: offset,
