@@ -1,4 +1,12 @@
 
+// Object.prototype.keys = function () { return Object.keys( this ) } // because fuck everybody
+
+Object.defineProperty( Object.prototype, 'keys', {
+	enumerable: false,
+	configurable: false,
+	writeable: false,
+	value: function () { return Object.keys( this ) },
+});
 
 var svgLayer = App.new({
 	type: 'svg',
@@ -15,6 +23,6 @@ var svgLayer = App.new({
 
 App.bindEvents( window, 'window' );
 
-App.load();
+App.load( 'last-session' );
 
-window.onunload = App.save;
+window.onunload = App.save( 'last-session' );

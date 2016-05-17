@@ -6,15 +6,20 @@ var Controller = {
 		'newElement': 'cell',
 		'linking': 'alias',
 		'deleteUniversal': 'not-allowed',
-		'default': 'default',
+		'default': 'crosshair',
 		'toggleShape': 'row-resize',
 		'toggleStyle': 'row-resize',
+		'resize': 'all-scroll',
 		'grab': 'grab',
 		'drop': 'grabbing',
 	},
 	x: 0,
 	y: 0,
 	pos: {
+		x: 0,
+		y: 0,
+	},
+	lastPos: {
 		x: 0,
 		y: 0,
 	},
@@ -28,10 +33,11 @@ var Controller = {
 		w: 0,
 		h: 0,
 	},
+	hover: null,
+	hold: null,
 	free: true,
 	drags: null,
 	resizes: null,
-	hover: null,
 	linksTo: null,
 	linksFrom: null,
 	text: false,
@@ -69,12 +75,10 @@ var Controller = {
 
 		state = App.key.Alt && this.free ? 'deleteUniversal' : state;
 
-		state = App.key.Control && this.hover && this.free ? 'toggleShape' : state;
-
-		state = App.key.Control && App.key.Alt && this.hover && this.free ? 'toggleStyle' : state;
-
 		state = this.drags ? 'drop' : state;
 
 		this.setState( state );
+
+		return state;
 	},
 }

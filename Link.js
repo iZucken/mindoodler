@@ -86,7 +86,7 @@ var Link = makeClass ( Link, function ( arg ) {
 	buildLine: function ( ) {
 		var shape = App.new({
 			type: 'path',
-			events: 'svgLine',
+			events: 'svgLink',
 			p: svgLayer,
 			ns: NS.svg,
 		});
@@ -218,7 +218,7 @@ var Link = makeClass ( Link, function ( arg ) {
 		this.view.line.setAttribute( 'd', attr );
 	},
 	buildLineStyle: function ( ) {
-		this.view.line.setAttribute( 'style', 'fill: none; stroke: rgba(0,0,0,1); stroke-width: 0.5;' );
+		this.view.line.setAttribute( 'style', 'fill: none; stroke: rgba(0,0,0,1); stroke-width: 1;' );
 	},
 	buildConnector: function ( which ) {
 	},

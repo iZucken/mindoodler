@@ -1,12 +1,9 @@
 
 var Events = {
-	binds: {
-	},
 	handlers: {
 		default: {
 			states: {
 				default: function ( arg ) {
-					App.log( 'defaultEventHandlerCall' );
 				},
 			},
 		},
@@ -14,102 +11,149 @@ var Events = {
 			states: {
 				start: function ( arg ) {
 					Controller.hover = arg.event.target;
-					Controller.hoverType = arg.target;
+					Controller.hoverType = arg.params.type;
 				},
 				stop: function ( arg ) {
 					Controller.hover = null;
 				},
 			},
 		},
+		grab: {
+			states: {
+				start: function ( arg ) {
+					var holded = arg.params.target;
+					Controller.hold = Controller.hover;
+					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
+					Controller.mode = 'drag';
+				},
+				move: function ( arg ) {
+					Controller.hold._owner.setDims( Controller.deltaDrag(), true );
+					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
+				},
+				stop: function ( arg ) {
+					Controller.hold = null;
+					Controller.mode = 'default';
+				},
+			},
+		},
+		// var offset = v2d.p( Controller.pos, block.dims );
+		// new Link({
+		// 	from: Controller.links.obj,
+		// 	fromPoint: Controller.links.dim,
+		// 	to: block,
+		// 	toPoint: offset,
+		// });
 	},
 	proxy: function ( arg ) {
-		var	handler = arg.handler ? Events.handlers[ handler ] : 'default',
-			event = arg.event,
-			state = arg.state || 'default',
-			target = arg.target || null;
+		var	handler = arg.handler ? Events.handlers[ arg.handler ] : Events.handlers.default,
+			event = arg.event || null,
+			state = arg.state || 'default'
+			params = arg.params || null;
 
-		var handler = Events.handlers[ handler ];
+		if ( typeof handler == 'undefined' ) {
+			App.warn( 'Undefined handler: ' + arg.handler );
+		} else {
+			handler.states[ state ]( { event: event, params: params } );
+		}
 
-		handler.states[ state ]( { event: event, target: target } );
-
-		App.log( Controller.hover );
 		
 		App.update( event );
+		//event && event.preventDefault();
 	},
 	list: {
 		window: {
-			keydown: function ( evt ) {
-				var key = evt.key || evt.keyIdentifier;
+			keydown: function ( event ) {
+				var key = event.key || event.keyIdentifier;
 				App.key[ key ] = App.key[ key ] != undefined ? true : undefined;
-				
-				App.askPreventDefault( evt, 'key', key );
-				App.update( evt );
-
+				App.askPreventDefault( event, 'key', key );
 				// chrome scaling
-				// if ( evt.ctrlKey == true && ( cwrk.indexOf( evt.which ) != -1 )) {
-				// 	evt.preventDefault();
+				// if ( event.ctrlKey == true && ( cwrk.indexOf( event.which ) != -1 )) {
+				// 	event.preventDefault();
 				// };
-				Events.proxy( { event: evt } );
+				Events.proxy( { event: event } );
 			},
-			keyup: function ( evt ) {
-				var key = evt.key || evt.keyIdentifier;
+			keyup: function ( event ) {
+				var key = event.key || event.keyIdentifier;
 				App.key[ key ] = App.key[ key ] != undefined ? false : undefined;
-				
-				App.askPreventDefault( evt, 'key', key );
-				Events.proxy( { event: evt } );
+				App.askPreventDefault( event, 'key', key );
+				Events.proxy( { event: event } );
 			},
-			mousedown: function ( evt ) {
-			},
-			mouseup: function ( evt ) {
-			},
-			mousemove: function ( evt ) {
-				Controller.setPos( evt.clientX, evt.clientY );
-				if ( Controller.drags ) {
+			mousemove: function ( event ) {
+				Controller.setPos( event.clientX, event.clientY );
+				/*if ( Controller.drags ) {
 					Controller.drags._owner.setDims( Controller.deltaDrag(), true );
 					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
-				}
+				}*/
 				// if ( Controller.resizes ) {
 				// 	Controller.resizes._owner.setDims( Controller.deltaResize(), false );
 				// }
-				Events.proxy( evt );
+				( event.buttons == 1 ) && Events.proxy( {
+					event: event,
+					handler: 'grab',
+					state: 'move',
+					params: { },
+				} );
+				( event.buttons == 2 ) && Events.proxy( {
+					event: event,
+					handler: 'resize',
+					state: 'move',
+					params: { },
+				} );
+				( event.buttons == 4 ) && Events.proxy( {
+					event: event,
+					handler: 'link',
+					state: 'to',
+					params: { type: 'point', target: Controller.pos, offset: v2d.p( Controller.pos, Controller.lastPos ) },
+				} );
+				Controller.lastPos.x = Controller.pos.x;
+				Controller.lastPos.y = Controller.pos.y;
 			},
-			wheel: function ( evt ) {
-				if ( evt.ctrlKey == true ) {
-					evt.preventDefault();
+			mouseup: function ( event ) {
+				( event.button == 0 ) && Events.proxy( {
+					event: event,
+					handler: 'grab',
+					state: 'stop',
+				} );
+				( event.button == 2 ) && Events.proxy( {
+					event: event,
+					handler: 'resize',
+					state: 'stop',
+				} );
+			},
+			wheel: function ( event ) {
+				if ( event.ctrlKey == true ) {
+					event.preventDefault();
 				}
 			},
-			mousewheel: function ( evt ) {
-				if ( evt.ctrlKey == true ) {
-					evt.preventDefault();
+			mousewheel: function ( event ) {
+				if ( event.ctrlKey == true ) {
+					event.preventDefault();
 				}
 			},
-			DOMMouseScroll: function ( evt ) {
-				if ( evt.ctrlKey == true ) {
-					evt.preventDefault();
+			DOMMouseScroll: function ( event ) {
+				if ( event.ctrlKey == true ) {
+					event.preventDefault();
 				}
 			},
 		},
 		svgLayer: {
-			mouseup: function ( evt ) {
+			mouseup: function ( event ) {
 				Controller.free = ! ( Controller.drags || Controller.resizes || Controller.links );
 				if ( Controller.free ) {
 					if ( Controller.state == 'newElement' ) {
 						new Block( Controller.pos );
 					}
-				}
-				Controller.drags = null;
-				Controller.resizes = null;
-				Controller.links = null;
-			},
-			mousemove: function ( evt ) {
-				Events.proxy( { event: evt } );
+				};
+				( event.button == 1 ) && Events.proxy( {
+					event: event,
+					handler: 'link',
+					state: 'to',
+					params: { type: 'point', target: Controller.pos, offset: v2d.p( Controller.pos, Controller.lastPos ) },
+				} );
 			},
 		},
-		svgLine: {
-			wheel: function ( evt ) {
-				Events.proxy( { event: evt } );
-			},
-			mouseup: function ( evt ) {
+		svgLink: {
+			/*mouseup: function ( event ) {
 				if ( Controller.state == 'deleteUniversal' ) {
 					App.log('Trying to delete line');
 					this._owner.destroy();
@@ -117,76 +161,45 @@ var Events = {
 				Controller.drags = null;
 				Controller.resizes = null;
 				Controller.links = null;
-				Events.proxy( { event: evt } );
+				Events.proxy( { event: event } );
+			},*/
+			mouseleave: function ( event ) {
+				Events.proxy( {
+					event: event,
+					handler: 'hover',
+					state: 'stop',
+				} );
 			},
-			mouseleave: function ( evt ) {
-				Controller.hover = null;
-				Events.proxy( { event: evt } );
-			},
-			mouseenter: function ( evt ) {
-				Controller.hover = evt.target;
-				Events.proxy( { event: evt } );
+			mouseenter: function ( event ) {
+				Events.proxy( {
+					event: event,
+					handler: 'hover',
+					state: 'start',
+					params: { type: 'link' },
+				} );
 			},
 		},
 		svgConnector: {
-			wheel: function ( evt ) {
-				Events.proxy( { event: evt } );
-			},
-			mouseleave: function ( evt ) {
-				Controller.hover = null;
-				Events.proxy( { event: evt } );
-			},
-			mouseenter: function ( evt ) {
-				Controller.hover = evt.target;
-				Events.proxy( { event: evt } );
-			},
-			mouseup: function ( evt ) {
-				Controller.drags = null;
-				Controller.links = null;
-				Events.proxy( { event: evt } );
-			},
 		},
 		svgBlock: {
-			wheel: function ( evt ) {
+			wheel: function ( event ) {
 				if ( Controller.state == 'toggleShape' ) {
-					this._owner.toggleShape( evt.deltaY > 0 ? true : false );
+					this._owner.toggleShape( event.deltaY > 0 ? true : false );
 				}
 				if ( Controller.state == 'toggleStyle' ) {
-					this._owner.toggleStyle( evt.deltaY > 0 ? true : false );
+					this._owner.toggleStyle( event.deltaY > 0 ? true : false );
 				}
-				App.askPreventDefault( evt, 'wheel' );
+				App.askPreventDefault( event, 'wheel' );
 			},
-			mouseup: function ( evt ) {
-				var block = this._owner;
-				Controller.drags = null;
-				if (
-					Controller.state == 'linking'
-					&& Controller.links
-					&& this !== Controller.links.obj.view.block
-				) {
-					var offset = v2d.p( Controller.pos, block.dims );
-					new Link({
-						from: Controller.links.obj,
-						fromPoint: Controller.links.dim,
-						to: block,
-						toPoint: offset,
-					});
-					Controller.links = null;
-				} else {
-					Controller.links = null;
-				};
-				App.askPreventDefault( evt, 'grab' );
+			mouseup: function ( event ) {
+				( event.button == 1 ) && Events.proxy( {
+					event: event,
+					handler: 'link',
+					state: 'to',
+					params: { type: 'block', target: this, offset: v2d.p( Controller.pos, this._owner.dims ) },
+				} );
 			},
 			mousedown: function ( event ) {
-				var block = this._owner;
-				if ( Controller.state == 'grab' ) {
-					Controller.drags = this;
-					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
-				}
-				// if ( Controller.state == 'resize' ) {
-				// 	Controller.resizes = this;
-				// 	Controller.resizeOrigin = this._owner.dims;
-				// }
 				if ( Controller.state == 'linking' ) {
 					var offset = v2d.p( Controller.pos, block.dims );
 					Controller.links = {
@@ -195,6 +208,25 @@ var Events = {
 					};
 				}
 				App.askPreventDefault( event, 'grab' );
+
+				( event.button == 0 ) && Events.proxy( {
+					event: event,
+					handler: 'grab',
+					state: 'start',
+					params: { type: 'block', target: this },
+				} );
+				( event.button == 1 ) && Events.proxy( {
+					event: event,
+					handler: 'link',
+					state: 'from',
+					params: { type: 'block', target: this },
+				} );
+				( event.button == 2 ) && Events.proxy( {
+					event: event,
+					handler: 'resize',
+					state: 'start',
+					params: { type: 'block', target: this },
+				} );
 			},
 			mouseleave: function ( event ) {
 				Events.proxy( {
@@ -208,11 +240,8 @@ var Events = {
 					event: event,
 					handler: 'hover',
 					state: 'start',
-					target: 'block',
+					params: { type: 'block' },
 				} );
-			},
-			mousemove: function ( event ) {
-				Events.proxy( { event: event } );
 			},
 		},
 	}

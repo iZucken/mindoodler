@@ -44,6 +44,9 @@ var App = {
 	log: function ( args ) {
 		true && console.log.apply( console, arguments );
 	},
+	warn: function ( args ) {
+		true && console.warn.apply( console, arguments );
+	},
 	new: function ( arg ) {
 		var doc = arg.doc || document,
 			type = arg.type || 'div',
