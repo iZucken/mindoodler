@@ -1,10 +1,10 @@
 
 
-var svgLayer = New({
+var svgLayer = App.new({
 	type: 'svg',
 	id: 'svgLayer',
 	c: 'svgLayer',
-	b: 'svgLayer',
+	e: 'svgLayer',
 	p: document.body,
 	ns: NS.svg,
 	attr: {
@@ -13,7 +13,7 @@ var svgLayer = New({
     }
 });
 
-setBehavior( window, 'window' );
+App.bindEvents( window, 'window' );
 
 App.load();
 

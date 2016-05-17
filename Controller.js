@@ -22,20 +22,35 @@ var Controller = {
 		x: 0,
 		y: 0,
 	},
+	resizeOrigin: {
+		x: 0,
+		y: 0,
+		w: 0,
+		h: 0,
+	},
 	free: true,
 	drags: null,
+	resizes: null,
 	hover: null,
 	linksTo: null,
 	linksFrom: null,
 	text: false,
 	stage: null,
 	state: 'default',
-	setPos: function ( arg ) {
-		this.pos = arg;
+	setPos: function ( x, y ) {
+		this.pos.x = x;
+		this.pos.y = y;
 	},
-	deltaFrom: function ( arg ) {
-		var delta = this[ arg ] && { x: this.pos.x - this[ arg ].x, y: this.pos.y - this[ arg ].y };
-		return delta ? delta : undefined;
+	setDragOrigin: function ( x, y ) {
+		this.dragOrigin.x = x;
+		this.dragOrigin.y = y;
+	},
+	deltaDrag: function ( ) {
+		return v2d.d( this.dragOrigin, this.pos );
+	},
+	deltaResize: function ( ) {
+		var d = v2d.d( this.pos, this.resizeOrigin );
+		return { w: this.resizeOrigin.w + d.x, h: this.resizeOrigin.h + d.y };
 	},
 	setState: function ( newState ) {
 		this.state = newState,
@@ -44,7 +59,7 @@ var Controller = {
 	calculateState: function () {
 		var state = 'default';
 
-		this.free = !this.drags;
+		this.free = ! ( this.drags || this.resizes || this.links );
 
 		state = this.hover && this.free ? 'grab' : state;
 

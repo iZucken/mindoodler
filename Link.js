@@ -84,9 +84,9 @@ var Link = makeClass ( Link, function ( arg ) {
 		this.buildConnectorStyle('tail');
 	},
 	buildLine: function ( ) {
-		var shape = New({
+		var shape = App.new({
 			type: 'path',
-			behavior: 'svgLine',
+			events: 'svgLine',
 			p: svgLayer,
 			ns: NS.svg,
 		});
@@ -119,39 +119,30 @@ var Link = makeClass ( Link, function ( arg ) {
 			w: 0,
 			h: 0,
 		},
-		aoff = this.from != null ? v2d.p( a, A ) : {
+		ap = this.from != null ? v2d.p( a, A ) : {
 			x: 0,
 			y: 0,
 		},
-		boff = this.to != null ? v2d.p( b, B ) : {
+		bp = this.to != null ? v2d.p( b, B ) : {
 			x: 0,
 			y: 0,
 		},
 		BAd = v2d.d( B, A ),
 		bad = v2d.d( b, a );
 
-		var BAD = v2d.l( BAd );
-		var baD = v2d.l( bad );
+		var BAl = v2d.l( BAd );
 
 		var
-		aout = {
-			x: A.x + aoff.x * BAD,
-			y: A.y + aoff.y * BAD,
+		ao = {
+			x: A.x + ap.x * BAl,
+			y: A.y + ap.y * BAl,
 		},
-		bout = {
-			x: B.x + boff.x * BAD,
-			y: B.y + boff.y * BAD,
+		bo = {
+			x: B.x + bp.x * BAl,
+			y: B.y + bp.y * BAl,
 		},
-		aout2 = {
-			x: A.x + aoff.x * BAD / 2,
-			y: A.y + aoff.y * BAD / 2,
-		},
-		bout2 = {
-			x: B.x + boff.x * BAD / 2,
-			y: B.y + boff.y * BAD / 2,
-		},
-		BAoff = v2d.p( B, A ),
-		ABoff = v2d.p( A, B ),
+		BAp = v2d.p( B, A ),
+		ABp = v2d.p( A, B ),
 		M = {
 			x: ( A.x + B.x ) / 2,
 			y: ( A.y + B.y ) / 2,
@@ -161,68 +152,70 @@ var Link = makeClass ( Link, function ( arg ) {
 			y: ( a.y + b.y ) / 2,
 		},
 		Mmd = v2d.d( M, m ),
-		Mmdst = v2d.l( Mmd );
+		Mml = v2d.l( Mmd );
 		
-
+		var Mpers = v2d.pers( M, B );
 		var p = [
 			{
-				x: a.x + aoff.x * A.w / 2,
-				y: a.y + aoff.y * A.h / 2,
+				x: a.x + ap.x * A.w / 2,
+				y: a.y + ap.y * A.h / 2,
 			},
+			Mpers.ccw,
+			Mpers.cw,
 			{
-				x: M.x + BAD / 2 * -BAoff.y,
-				y: M.y + BAD / 2 * BAoff.x,
+				x: b.x + bp.x * B.w / 2,
+				y: b.y + bp.y * B.h / 2,
 			},
-			{
-				x: M.x + BAD / 2 * BAoff.y,
-				y: M.y + BAD / 2 * -BAoff.x,
-			},
-			{
-				x: b.x + boff.x * B.w / 2,
-				y: b.y + boff.y * B.h / 2,
-			},
-		],
-		afac = {
-			x: BAoff.x * aoff.x,
-			y: BAoff.y * aoff.y,
-		},
-		bfac = {
-			x: ABoff.x * boff.x,
-			y: ABoff.y * boff.y,
-		},
-		fac = afac.x + afac.y + bfac.x + bfac.y,
-		i = lineInters( a, aout, b, bout )
-		;
+		];
+		var aXb = v2d.lint( a, ao, b, bo );
 
-		App.log(  );
+		var apM = v2d.lint( a, ao, Mpers.cw, Mpers.ccw );
+		var bpM = v2d.lint( b, bo, Mpers.cw, Mpers.ccw );
+		var aopM = v2d.getIntersectingPerpendicular( p[0], A, Mpers.cw, Mpers.ccw );
+		var bopM = v2d.getIntersectingPerpendicular( p[3], B, Mpers.cw, Mpers.ccw );
 
-		attribute = '';
-		attribute += ( i.a && i.b ) ? ('M ' + M.x + ',' + M.y + ' ' + 'L ' + i.x + ',' + i.y + ' ') : '' ;
-		attribute += 'M ' + a.x + ',' + a.y + ' ' + 'L ' + p[0].x + ',' + p[0].y + ' ';
-		attribute += 'M ' + b.x + ',' + b.y + ' ' + 'L ' + p[3].x + ',' + p[3].y + ' ';
-		attribute += 'M ' + M.x + ',' + M.y + ' ' + 'L ' + p[1].x + ',' + p[1].y + ' ';
-		attribute += 'M ' + M.x + ',' + M.y + ' ' + 'L ' + p[2].x + ',' + p[2].y + ' ';
-		attribute += 'M ' + A.x + ',' + A.y + ' ' + 'L ' + aout2.x + ',' + aout2.y + ' ';
-		attribute += 'M ' + B.x + ',' + B.y + ' ' + 'L ' + bout2.x + ',' + bout2.y + ' ';
-
-		attribute += 'M ' + a.x + ',' + a.y + ' ';
-
-		if ( i.a && i.b ) {
-			attribute +=
-			'Q ' + i.x + ',' + i.y + ' ' +
-			'  ' + b.x + ',' + b.y + ' ';
-		} else {
-			attribute +=
-			'C ' + p[0].x + ',' + p[0].y + ' ' +
-			' ' + p[1].x + ',' + p[1].y + ' ' +
-			' ' + M.x + ',' + M.y + ' ' +
-			'C ' + p[2].x + ',' + p[2].y + ' ' +
-			' ' + p[3].x + ',' + p[3].y + ' ' +
-			' ' + b.x + ',' + b.y + ' '
-			;
+		var maxd = {
+			a: v2d.l( { x: A.w, y: A.h } ),
+			b: v2d.l( { x: B.w, y: B.h } ),
+			w: Math.max( A.w, B.w ),
+			h: Math.max( A.h, B.h ),
 		};
 
-		this.view.line.setAttribute( 'd', attribute );
+		var
+		Ai = v2d.i( A, M ),
+		Bi = v2d.i( B, M ),
+		Aip = v2d.pers( Ai, A ),
+		Bip = v2d.pers( Bi, B ),
+		Acw = v2d.p( Aip.cw, A ),
+		Accw = v2d.p( Aip.ccw, A ),
+		Bcw = v2d.p( Bip.cw, B ),
+		Bccw = v2d.p( Bip.ccw, B ),
+		Acw = v2d.add( A, { x: Acw.x * maxd.a, y: Acw.y * maxd.a } ),
+		Accw = v2d.add( A, { x: Accw.x * maxd.a, y: Accw.y * maxd.a } ),
+		Bcw = v2d.add( B, { x: Bcw.x * maxd.b, y: Bcw.y * maxd.b } ),
+		Bccw = v2d.add( B, { x: Bccw.x * maxd.b, y: Bccw.y * maxd.b } );
+
+		var attr = '';
+		attr += ( aXb.a && aXb.b ) ? svgen.line( M, aXb ) : '' ;
+		attr += svgen.line( a, p[0] );
+		attr += svgen.line( b, p[3] );
+		attr += svgen.line( M, p[1] );
+		attr += svgen.line( M, p[2] );
+		attr += svgen.line( Acw, Accw );
+		attr += svgen.line( Acw, Bccw );
+		attr += svgen.line( Bcw, Bccw );
+		attr += svgen.line( Accw, Bcw );
+		attr += ( aopM ) ? svgen.line( p[0], aopM ) : '' ;
+		attr += ( bopM ) ? svgen.line( p[3], bopM ) : '' ;
+		attr += ( apM && apM.b ) ? svgen.line( a, apM ) : '' ;
+		attr += ( bpM && bpM.b ) ? svgen.line( b, bpM ) : '' ;
+
+		if ( aXb.a && aXb.b ) {
+			attr += svgen.qcurve( a, aXb, b );
+		} else {
+		};
+
+		this.view.line.setAttribute( 'd', attr );
 	},
 	buildLineStyle: function ( ) {
 		this.view.line.setAttribute( 'style', 'fill: none; stroke: rgba(0,0,0,1); stroke-width: 0.5;' );

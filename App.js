@@ -18,6 +18,10 @@ var App = {
 		Controller.calculateState( );
 	},
 	save: function () {
+		/*
+			I can't just use json.serialize
+			because blocks and links refer to each other
+		*/
 		var data = '{' +
 			'"blocks": [' + Block._list.join(',') + '],' +
 			'"links": [' + Link._list.join(',') + ']' +
@@ -35,10 +39,65 @@ var App = {
 				new Link( e );
 			} );
 		};
-		window.localStorage.clear( 'last-session' );
+		// window.localStorage.clear( 'last-session' );
 	},
 	log: function ( args ) {
 		true && console.log.apply( console, arguments );
+	},
+	new: function ( arg ) {
+		var doc = arg.doc || document,
+			type = arg.type || 'div',
+			className = arg.className || arg.class || arg.c,
+			id = arg.id,
+			text = arg.text || arg.t,
+			childs = arg.childs || arg.ch || [],
+			parent = arg.parent || arg.p,
+			value = arg.value || arg.val || arg.v,
+			name = arg.name || arg.n,
+			eventsList = arg.eventsList || arg.events || arg.e,
+			style = arg.style || arg.s,
+			props = arg.prop,
+			attrList = arg.attr,
+			ns = arg.ns,
+			e = ns ? doc.createElementNS( ns, type ) : doc.createElement( type );
+
+		if ( className ) { e.className = className }
+		if ( id ) { e.id = id }
+		if ( text ) { e.innerHTML = text }
+		if ( name ) { e.name = name }
+		if ( props ) {
+			for ( var prop in props ) {
+				e[prop] = props[prop];
+			}
+		}
+
+		style && e.setAttribute( 'style', style );
+		attrList && domSetAttributes( e, attrList );
+		eventsList && App.bindEvents( e, eventsList );
+		
+		if ( childs ) {
+			for ( var i = 0; i < childs.length; i++ ) {
+				try {
+					e.appendChild( childs[ i ] )
+				} catch ( err ) {
+					console.warn( err );
+				}
+			}
+		}
+		if ( parent ) { parent.appendChild( e ) }
+		if ( value ) { e.value = value }
+		return e;
+	},
+	bindEvents: function ( element, eventsList ) {
+		eventsList = Array.isArray( eventsList ) ? eventsList : [ eventsList ];
+		for ( var type in eventsList ) {
+			var typeName = eventsList[ type ];
+			if ( Events.list[ typeName ] ) {
+				for ( var event in Events.list[ typeName ] ) {
+					element.addEventListener( event, Events.list[ typeName ][ event ] );
+				}
+			}
+		}
 	},
 };
 

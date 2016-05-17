@@ -18,6 +18,10 @@ var Block = makeClass ( Block, function ( arg ) {
 	this._list.push( this );
 }, {
 	_list: [],
+	_dimsmin: {
+		w: 10,
+		h: 10,
+	},
 	W: 100,
 	H: 100,
 	shape: 'ellipse',
@@ -222,9 +226,9 @@ var Block = makeClass ( Block, function ( arg ) {
 		this.view.block.Block = this;
 	},
 	buildShape: function ( ) {
-		var shape = New({
+		var shape = App.new({
 			type: Block.shapes[ this.shape ].type,
-			behavior: 'svgBlock',
+			events: 'svgBlock',
 			p: svgLayer,
 			ns: NS.svg,
 		});
