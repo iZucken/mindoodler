@@ -211,6 +211,7 @@ var Link = makeClass ( Link, function ( arg ) {
 		attr += ( bpM && bpM.b ) ? svgen.line( b, bpM ) : '' ;
 
 		if ( aXb.a && aXb.b ) {
+			// attr += svgen.ccurve( a, aXb, aXb, b );
 			attr += svgen.qcurve( a, aXb, b );
 		} else {
 		};

@@ -23,6 +23,6 @@ var svgLayer = App.new({
 
 App.bindEvents( window, 'window' );
 
-App.load( 'last-session' );
+App.load();
 
-window.onunload = App.save( 'last-session' );
+window.onunload = App.save;

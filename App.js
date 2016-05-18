@@ -17,7 +17,7 @@ var App = {
 	update: function ( arg ) {
 		Controller.calculateState( );
 	},
-	save: function () {
+	save: function ( arg ) {
 		/*
 			I can't just use json.serialize
 			because blocks and links refer to each other
@@ -29,7 +29,7 @@ var App = {
 		window.localStorage.setItem( 'last-session', data );
 		//window.localStorage.setItem( 'last-session', JSON.stringify( data ) );
 	},
-	load: function () {
+	load: function ( arg ) {
 		var data = JSON.parse( window.localStorage.getItem( 'last-session' ) );
 		if ( data ) {
 			data.blocks.forEach( function ( e, i, a ) {
@@ -39,7 +39,7 @@ var App = {
 				new Link( e );
 			} );
 		};
-		// window.localStorage.clear( 'last-session' );
+		//window.localStorage.clear( 'last-session' );
 	},
 	log: function ( args ) {
 		true && console.log.apply( console, arguments );
