@@ -14,7 +14,9 @@ var Events = {
 					Controller.hoverType = arg.params.type;
 				},
 				stop: function ( arg ) {
-					Controller.hover = null;
+					if ( !Controller.hold && Controller.hover == arg.params.target ) {
+						Controller.hover = null;
+					}
 				},
 			},
 		},
@@ -31,8 +33,19 @@ var Events = {
 					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
 				},
 				stop: function ( arg ) {
-					Controller.hold = null;
-					Controller.mode = 'default';
+						Controller.hold = null;
+						Controller.mode = 'default';
+				},
+			},
+		},
+		link: {
+			states: {
+				from: function ( arg ) {
+					Controller.mode = 'link';
+				},
+				to: function ( arg ) {
+				},
+				abort: function ( arg ) {
 				},
 			},
 		},
@@ -233,6 +246,7 @@ var Events = {
 					event: event,
 					handler: 'hover',
 					state: 'stop',
+					params: { type: 'block', target: this },
 				} );
 			},
 			mouseenter: function ( event ) {

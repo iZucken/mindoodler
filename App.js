@@ -5,6 +5,16 @@ var App = {
 		Alt: false,
 		Control: false,
 	},
+	view: {
+		svgframe: null,
+		layers: {
+			block: null,
+			link: null,
+			text: null,
+			modal: null,
+			control: null,
+		},
+	},
 	askPreventDefault: function ( evt, type, detail ) {
 		var prevent = false;
 
@@ -46,6 +56,61 @@ var App = {
 	},
 	warn: function ( args ) {
 		true && console.warn.apply( console, arguments );
+	},
+	buildView: function () {
+		var view = this.view;
+		view.svgframe = App.new({
+			type: 'svg',
+			id: 'svgframe',
+			c: 'svgframe',
+			e: 'svgframe',
+			p: document.body,
+			ns: NS.svg,
+			attr: {
+				width: 10000,
+				height: 10000,
+			}
+		});
+		view.layers.link = App.new({
+			type: 'g',
+			id: '',
+			c: '',
+			e: '',
+			p: view.svgframe,
+			ns: NS.svg,
+			attr: {
+		    }
+		});
+		view.layers.block = App.new({
+			type: 'g',
+			id: '',
+			c: '',
+			e: '',
+			p: view.svgframe,
+			ns: NS.svg,
+			attr: {
+		    }
+		});
+		/*
+		view.layers.modal = App.new({
+			type: 'g',
+			id: '',
+			c: '',
+			e: '',
+			p: view.svgframe,
+			ns: NS.svg,
+			attr: {
+				'pointer-events': 'visiblePainted',
+		    }
+		});
+		*/
+		view.control = App.new({
+			type: 'div',
+			id: 'controlVisuals',
+			c: 'controlVisuals',
+			e: 'controlVisuals',
+			p: document.body,
+		});
 	},
 	new: function ( arg ) {
 		var doc = arg.doc || document,

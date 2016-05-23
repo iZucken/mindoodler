@@ -229,7 +229,7 @@ var Block = makeClass ( Block, function ( arg ) {
 		var shape = App.new({
 			type: Block.shapes[ this.shape ].type,
 			events: 'svgBlock',
-			p: svgLayer,
+			p: App.view.layers.block,
 			ns: NS.svg,
 		});
 		this.view.block = shape;

@@ -43,9 +43,16 @@ var Controller = {
 	text: false,
 	stage: null,
 	state: 'default',
+	view: null,
+	buildView: function () {
+		this.view = App.new(
+		);
+	},
 	setPos: function ( x, y ) {
 		this.pos.x = x;
 		this.pos.y = y;
+		App.view.control.style.top = this.pos.y;
+		App.view.control.style.left = this.pos.x;
 	},
 	setDragOrigin: function ( x, y ) {
 		this.dragOrigin.x = x;
@@ -59,8 +66,8 @@ var Controller = {
 		return { w: this.resizeOrigin.w + d.x, h: this.resizeOrigin.h + d.y };
 	},
 	setState: function ( newState ) {
-		this.state = newState,
-		document.body.style.cursor = this.styles[ newState ]
+		this.state = newState;
+		// document.body.style.cursor = this.styles[ newState ]
 	},
 	calculateState: function () {
 		var state = 'default';

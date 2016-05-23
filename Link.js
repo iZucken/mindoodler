@@ -87,7 +87,7 @@ var Link = makeClass ( Link, function ( arg ) {
 		var shape = App.new({
 			type: 'path',
 			events: 'svgLink',
-			p: svgLayer,
+			p: App.view.layers.link,
 			ns: NS.svg,
 		});
 		this.view.line = shape;
