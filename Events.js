@@ -199,12 +199,6 @@ var Events = {
 		},
 		svgFrame: {
 			mouseup: function ( event ) {
-				Controller.free = ! ( Controller.drags || Controller.resizes || Controller.links );
-				if ( Controller.free ) {
-					if ( Controller.state == 'newElement' ) {
-						new Block( Controller.pos );
-					}
-				};
 				( event.button == 1 ) && Events.proxy( {
 					event: event,
 					handler: 'link',

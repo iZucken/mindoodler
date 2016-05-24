@@ -1,32 +1,38 @@
-var Block = makeClass ( Block, function ( arg ) {
+
+var Block = function ( arg ) {
 	var arg = arg || {};
 	var dims = arg.dims || {};
 	this.dims = {
 		x: arg.x || dims.x,
 		y: arg.y || dims.y,
-		w: arg.w || dims.w || Block.W,
-		h: arg.h || dims.h || Block.H,
+		w: arg.w || dims.w || Block.last.w,
+		h: arg.h || dims.h || Block.last.h,
 	};
-	this.text = arg.text || "Sample text";
-	this.shape = arg.shape || Block.shape;
-	this.style = arg.style || Block.style;
+	this.text = arg.text || Block.last.text;
+	this.shape = arg.shape || Block.last.shape;
+	this.style = arg.style || Block.last.style;
 	this.links = [];
 	this.view = {
 		block: null,
 		text: null,
 	};
 	this.buildView();
-	this._list.push( this );
-}, {
-	_list: [],
-	_dimsmin: {
+	Block.list.push( this );
+};
+
+Block.extend({
+	list: [],
+	last: {
+		text: 'Sample text',
+		w: 100,
+		h: 100,
+		shape: 'ellipse',
+		style: 'filled',
+	},
+	dimsmin: {
 		w: 10,
 		h: 10,
 	},
-	W: 100,
-	H: 100,
-	shape: 'ellipse',
-	style: 'filled',
 	shapes: {
 		'rectangle': {
 			type: 'rect',
@@ -154,6 +160,9 @@ var Block = makeClass ( Block, function ( arg ) {
 			'stroke-dasharray': ' 8, 8 ',
 		},
 	},
+});
+
+Block.prototype.extend({
 	toString: function () {
 		return JSON.stringify( this.getSaveableData() );
 	},
@@ -174,7 +183,7 @@ var Block = makeClass ( Block, function ( arg ) {
 			links[0].destroy();
 		};
 		this.links = null;
-		this._list.splice( this._list.indexOf( this ), 1 );
+		Block.list.splice( Block.list.indexOf( this ), 1 );
 	},
 	setDims: function ( dims, increment ) {
 		var dimsOwn = this.dims;
@@ -195,7 +204,7 @@ var Block = makeClass ( Block, function ( arg ) {
 		});
 	},
 	getAttachPoint: function ( arg ) {
-		return this.shapes[ this.shape ].attachPoint.bind( this )( arg );
+		return Block.shapes[ this.shape ].attachPoint.bind( this )( arg );
 	},
 	toggleShape: function ( backwards ) {
 		var keys = Block.shapes.keys(), toggle = keys.indexOf( this.shape ) + ( backwards ? 1 : -1 );

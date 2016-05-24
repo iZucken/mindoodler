@@ -29,12 +29,12 @@ var App = {
 	},
 	save: function ( arg ) {
 		/*
-			I can't just use json.serialize
+			I can't just use json.serialize here
 			because blocks and links refer to each other
 		*/
 		var data = '{' +
-			'"blocks": [' + Block._list.join(',') + '],' +
-			'"links": [' + Link._list.join(',') + ']' +
+			'"blocks": [' + Block.list.join(',') + '],' +
+			'"links": [' + Link.list.join(',') + ']' +
 		'}';
 		window.localStorage.setItem( 'last-session', data );
 		//window.localStorage.setItem( 'last-session', JSON.stringify( data ) );

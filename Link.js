@@ -1,7 +1,7 @@
 
-var Link = makeClass ( Link, function ( arg ) {
-	this.from = arg.from || Block._list[ arg.from_ID ] || null;
-	this.to = arg.to || Block._list[ arg.to_ID ] || null;
+var Link = function ( arg ) {
+	this.from = arg.from || Block.list[ arg.from_ID ] || null;
+	this.to = arg.to || Block.list[ arg.to_ID ] || null;
 
 	this.fromPoint = arg.fromPoint;
 	this.toPoint = arg.toPoint;
@@ -12,9 +12,9 @@ var Link = makeClass ( Link, function ( arg ) {
 	this.fromType == 'block' && this.from.links.push( this );
 	this.toType == 'block' && this.to.links.push( this );
 
-	this.width = arg.width || this.W;
-	this.style = arg.style || '';
-	this.text = 'Sample text';
+	this.width = arg.width || Link.last.width;
+	this.style = arg.style || Link.last.style;
+	this.text = Link.last.text;
 
 	this.view = {
 		line: null,
@@ -24,20 +24,30 @@ var Link = makeClass ( Link, function ( arg ) {
 		tail: null,
 	}
 	this.buildView();
-	this._list.push( this );
-}, {
-	_list: [],
+	Link.list.push( this );
+};
+
+Link.extend({
+	list: [],
+	last: {
+		width: 3,
+		style: 'default',
+		text: 'Sample Text',
+	},
+});
+
+Link.prototype.extend({
 	toString: function () {
 		return JSON.stringify( this.getSaveableData() );
 	},
 	getSaveableData: function () {
 		with ( this ) {
 			return {
-				from_ID: fromType == 'block' ? Block._list.indexOf( from ) : null,
+				from_ID: fromType == 'block' ? Block.list.indexOf( from ) : null,
 				from: fromType == 'point' ? JSON.stringify( from ) : null,
 				fromPoint: fromPoint,
 				fromType: fromType,
-				to_ID: toType == 'block' ? Block._list.indexOf( to ) : null,
+				to_ID: toType == 'block' ? Block.list.indexOf( to ) : null,
 				to: toType == 'point' ? JSON.stringify( to ) : null,
 				toPoint: toPoint,
 				toType: toType,
@@ -48,21 +58,15 @@ var Link = makeClass ( Link, function ( arg ) {
 		};
 	},
 	destroy: function () {
-		var view = this.view;
-		for ( item in view ) {
-			if ( view[ item ] != null ) {
-				view[ item ].remove();
-				view[ item ] = null;
-			};
-		};
+		vthis.clearView();
 		this.from && this.from.links.splice( this.from.links.indexOf( this ), 1 );
 		this.to && this.to.links.splice( this.to.links.indexOf( this ), 1 );
-		this._list.splice( this._list.indexOf( this ), 1 );
+		Link.list.splice( Link.list.indexOf( this ), 1 );
 	},
 	destroyUnlinked: function () {
 		for ( link in Link._list ) {
-			if ( Link._list[link].from == null || Link._list[link].to == null ) {
-				Link._list[link].destroy();
+			if ( Link.list[ link ].from == null || Link.list[ link ].to == null ) {
+				Link.list[ link ].destroy();
 			}
 		};
 	},
@@ -70,6 +74,12 @@ var Link = makeClass ( Link, function ( arg ) {
 	},
 	clearView: function ( ) {
 		var view = this.view;
+		for ( item in view ) {
+			if ( view[ item ] != null ) {
+				view[ item ].remove();
+				view[ item ] = null;
+			};
+		};
 	},
 	buildView: function ( ) {
 		this.clearView();
@@ -105,11 +115,12 @@ var Link = makeClass ( Link, function ( arg ) {
 		}
 	},
 	buildLineAttribs: function ( ) {
+		App.log( this.fromPoint );
 		var
 		a = this.fromType == 'block'
 			? this.from.getAttachPoint( this.fromPoint )
-			: v2d.add( this.fromPoint, this.from ),
-
+			: v2d.add( this.fromPoint, this.from );
+		var 
 		b = this.toType == 'block'
 			? this.to.getAttachPoint( this.toPoint )
 			: v2d.add( this.toPoint, this.to ),
@@ -120,8 +131,8 @@ var Link = makeClass ( Link, function ( arg ) {
 			w: this.from.dims.w,
 			h: this.from.dims.h,
 		} : {
-			x: this.form.x,
-			y: this.form.y,
+			x: this.from.x,
+			y: this.from.y,
 			w: 0,
 			h: 0,
 		},
