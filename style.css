@@ -23,24 +23,55 @@ body {
 }
 
 
+
+.modalLayer {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.controlLayer {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
 .controlVisuals {
 	display: block;
 	position: absolute;
 	top: 100px;
 	left: 100px;
-	width: 5px;
+	width: 1px;
 	height: 1px;
 	background: black;
 	pointer-events: none;
+}
+.controlVisuals:before {
+	content: "";
+	display: block;
+	position: relative;
+	top: -4px;
+	left: 0px;
+	width: 1px;
+	height: 9px;
+	background: black;
 }
 .controlVisuals:after {
 	content: "";
 	display: block;
 	position: relative;
-	top: 0px;
-	left: 0px;
-	width: 1px;
-	height: 5px;
+	top: -9px;
+	left: -4px;
+	width: 9px;
+	height: 1px;
 	background: black;
 }
 

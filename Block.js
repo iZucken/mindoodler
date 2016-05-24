@@ -1,4 +1,5 @@
 var Block = makeClass ( Block, function ( arg ) {
+	var arg = arg || {};
 	var dims = arg.dims || {};
 	this.dims = {
 		x: arg.x || dims.x,
@@ -167,13 +168,7 @@ var Block = makeClass ( Block, function ( arg ) {
 		};
 	},
 	destroy: function () {
-		var view = this.view;
-		for ( item in view ) {
-			if ( view[ item ] != null ) {
-				view[ item ].remove();
-				view[ item ] = null;
-			};
-		};
+		this.clearView();
 		var links = this.links;
 		while ( links[0] ) {
 			links[0].destroy();
@@ -215,8 +210,13 @@ var Block = makeClass ( Block, function ( arg ) {
 		this.buildStyle();
 	},
 	clearView: function ( ) {
-		this.view.block && this.view.block.remove();
-		this.view.text && this.view.text.remove();
+		var view = this.view;
+		for ( item in view ) {
+			if ( view[ item ] != null ) {
+				view[ item ].remove();
+				view[ item ] = null;
+			};
+		};
 	},
 	buildView: function () {
 		this.clearView();
@@ -226,14 +226,18 @@ var Block = makeClass ( Block, function ( arg ) {
 		this.view.block.Block = this;
 	},
 	buildShape: function ( ) {
-		var shape = App.new({
-			type: Block.shapes[ this.shape ].type,
-			events: 'svgBlock',
-			p: App.view.layers.block,
-			ns: NS.svg,
-		});
-		this.view.block = shape;
-		this.view.block._owner = this;
+		if ( App.view.blockLayer ) {
+			var shape = App.new({
+				type: Block.shapes[ this.shape ].type,
+				events: 'svgBlock',
+				p: App.view.blockLayer,
+				ns: NS.svg,
+			});
+			this.view.block = shape;
+			this.view.block._owner = this;
+		} else {
+			App.warn( 'Can\'t find block parent layer, aborting visuals.' );
+		}
 	},
 	buildAttribs: function ( ) {
 		var attributes = Block.shapes[ this.shape ].attributes.bind(this)();

@@ -4,18 +4,20 @@ var Events = {
 		default: {
 			states: {
 				default: function ( arg ) {
+					App.log( 'Default event proxy handler invoked with: ', arg );
 				},
 			},
 		},
 		hover: {
 			states: {
 				start: function ( arg ) {
-					Controller.hover = arg.event.target;
-					Controller.hoverType = arg.params.type;
+					Controller.hover = arg.target;
+					Controller.hoverType = arg.type;
 				},
 				stop: function ( arg ) {
-					if ( !Controller.hold && Controller.hover == arg.params.target ) {
+					if ( !Controller.hold && Controller.hover == arg.target ) {
 						Controller.hover = null;
+						Controller.hoverType = null;
 					}
 				},
 			},
@@ -23,8 +25,7 @@ var Events = {
 		grab: {
 			states: {
 				start: function ( arg ) {
-					var holded = arg.params.target;
-					Controller.hold = Controller.hover;
+					Controller.hold = arg.target;
 					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
 					Controller.mode = 'drag';
 				},
@@ -33,43 +34,88 @@ var Events = {
 					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
 				},
 				stop: function ( arg ) {
-						Controller.hold = null;
-						Controller.mode = 'default';
+					Controller.hold = null;
+					Controller.mode = 'default';
 				},
 			},
 		},
 		link: {
 			states: {
-				from: function ( arg ) {
+				begin: function ( arg ) {
+					var link = new Link({
+						from: arg.target._owner,
+						fromPoint: v2d.p( Controller.pos, arg.target._owner.dims ),
+						fromType: 'block',
+						to: Controller.pos,
+						toPoint: v2d.p( Controller.pos, Controller.lastPos ),
+						toType: 'point',
+					});
+					Controller.hold = link;
+					Controller.holdType = 'link-to';
 					Controller.mode = 'link';
 				},
-				to: function ( arg ) {
+				from: function ( arg ) {
+					var link = Controller.hold;
+					switch ( arg.type ) {
+						case 'block':
+							link.from = arg.target._owner;
+							link.fromPoint = v2d.p( Controller.pos, arg.target._owner.dims );
+							break;
+						case 'point':
+							link.from = arg.target;
+							link.fromPoint = v2d.p( Controller.pos, Controller.lastPos );
+							break;
+					}
+					link.fromType = arg.type;
+					link.buildAttribs();
 				},
-				abort: function ( arg ) {
+				to: function ( arg ) {
+					var link = Controller.hold;
+					switch ( arg.type ) {
+						case 'block':
+							link.to = arg.target._owner;
+							link.toPoint = v2d.p( Controller.pos, arg.target._owner.dims );
+							break;
+						case 'point':
+							link.to = arg.target;
+							link.toPoint = v2d.p( Controller.pos, Controller.lastPos );
+							break;
+					}
+					link.toType = arg.type;
+					link.buildAttribs();
+				},
+				finish: function ( arg ) {
+					var link = Controller.hold;
+					switch ( arg.type ) {
+						case 'block':
+							link.to = arg.target._owner;
+							link.toPoint = v2d.p( Controller.pos, arg.target._owner.dims );
+							break;
+						case 'point':
+							link.to = arg.target;
+							link.toPoint = v2d.p( Controller.pos, Controller.lastPos );
+							break;
+					}
+					link.toType = arg.type;
+					link.buildAttribs();
+					Controller.hold = null;
+					Controller.holdType = null;
+					Controller.mode = 'default';
 				},
 			},
 		},
-		// var offset = v2d.p( Controller.pos, block.dims );
-		// new Link({
-		// 	from: Controller.links.obj,
-		// 	fromPoint: Controller.links.dim,
-		// 	to: block,
-		// 	toPoint: offset,
-		// });
 	},
 	proxy: function ( arg ) {
 		var	handler = arg.handler ? Events.handlers[ arg.handler ] : Events.handlers.default,
 			event = arg.event || null,
 			state = arg.state || 'default'
-			params = arg.params || null;
-
+			params = arg.params || {};
 		if ( typeof handler == 'undefined' ) {
 			App.warn( 'Undefined handler: ' + arg.handler );
 		} else {
-			handler.states[ state ]( { event: event, params: params } );
+			params.event = event;
+			handler.states[ state ]( params );
 		}
-
-		
 		App.update( event );
 		//event && event.preventDefault();
 	},
@@ -92,34 +138,36 @@ var Events = {
 				Events.proxy( { event: event } );
 			},
 			mousemove: function ( event ) {
-				Controller.setPos( event.clientX, event.clientY );
-				/*if ( Controller.drags ) {
-					Controller.drags._owner.setDims( Controller.deltaDrag(), true );
-					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
-				}*/
-				// if ( Controller.resizes ) {
-				// 	Controller.resizes._owner.setDims( Controller.deltaResize(), false );
-				// }
-				( event.buttons == 1 ) && Events.proxy( {
-					event: event,
-					handler: 'grab',
-					state: 'move',
-					params: { },
-				} );
-				( event.buttons == 2 ) && Events.proxy( {
-					event: event,
-					handler: 'resize',
-					state: 'move',
-					params: { },
-				} );
-				( event.buttons == 4 ) && Events.proxy( {
-					event: event,
-					handler: 'link',
-					state: 'to',
-					params: { type: 'point', target: Controller.pos, offset: v2d.p( Controller.pos, Controller.lastPos ) },
-				} );
 				Controller.lastPos.x = Controller.pos.x;
 				Controller.lastPos.y = Controller.pos.y;
+				Controller.setPos( event.clientX, event.clientY );
+				switch ( event.buttons ) {
+					case 1:
+						Events.proxy( {
+							event: event,
+							handler: 'grab',
+							state: 'move',
+							params: { },
+						} );
+						break;
+					case 2:
+						Events.proxy( {
+							event: event,
+							handler: 'resize',
+							state: 'move',
+							params: { },
+						} );
+						break;
+					case 4:
+						var type = Controller.hoverType == 'block' ? 'block' : 'point';
+						Events.proxy( {
+							event: event,
+							handler: 'link',
+							state: 'to',
+							params: { type: type, target: Controller.hoverType == 'block' ? this : null },
+						} );
+						break;
+				};
 			},
 			mouseup: function ( event ) {
 				( event.button == 0 ) && Events.proxy( {
@@ -149,7 +197,7 @@ var Events = {
 				}
 			},
 		},
-		svgLayer: {
+		svgFrame: {
 			mouseup: function ( event ) {
 				Controller.free = ! ( Controller.drags || Controller.resizes || Controller.links );
 				if ( Controller.free ) {
@@ -160,22 +208,12 @@ var Events = {
 				( event.button == 1 ) && Events.proxy( {
 					event: event,
 					handler: 'link',
-					state: 'to',
-					params: { type: 'point', target: Controller.pos, offset: v2d.p( Controller.pos, Controller.lastPos ) },
+					state: 'finish',
+					params: { type: 'point' },
 				} );
 			},
 		},
 		svgLink: {
-			/*mouseup: function ( event ) {
-				if ( Controller.state == 'deleteUniversal' ) {
-					App.log('Trying to delete line');
-					this._owner.destroy();
-				};
-				Controller.drags = null;
-				Controller.resizes = null;
-				Controller.links = null;
-				Events.proxy( { event: event } );
-			},*/
 			mouseleave: function ( event ) {
 				Events.proxy( {
 					event: event,
@@ -208,20 +246,12 @@ var Events = {
 				( event.button == 1 ) && Events.proxy( {
 					event: event,
 					handler: 'link',
-					state: 'to',
-					params: { type: 'block', target: this, offset: v2d.p( Controller.pos, this._owner.dims ) },
+					state: 'finish',
+					params: { type: 'block', target: this },
 				} );
 			},
 			mousedown: function ( event ) {
-				if ( Controller.state == 'linking' ) {
-					var offset = v2d.p( Controller.pos, block.dims );
-					Controller.links = {
-						obj: block,
-						dim: offset,
-					};
-				}
-				App.askPreventDefault( event, 'grab' );
-
+				event.preventDefault();
 				( event.button == 0 ) && Events.proxy( {
 					event: event,
 					handler: 'grab',
@@ -231,7 +261,7 @@ var Events = {
 				( event.button == 1 ) && Events.proxy( {
 					event: event,
 					handler: 'link',
-					state: 'from',
+					state: 'begin',
 					params: { type: 'block', target: this },
 				} );
 				( event.button == 2 ) && Events.proxy( {

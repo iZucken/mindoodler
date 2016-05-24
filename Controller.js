@@ -51,8 +51,8 @@ var Controller = {
 	setPos: function ( x, y ) {
 		this.pos.x = x;
 		this.pos.y = y;
-		App.view.control.style.top = this.pos.y;
-		App.view.control.style.left = this.pos.x;
+		App.view.pointer.style.top = this.pos.y;
+		App.view.pointer.style.left = this.pos.x;
 	},
 	setDragOrigin: function ( x, y ) {
 		this.dragOrigin.x = x;

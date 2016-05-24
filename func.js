@@ -3,16 +3,19 @@ var domSetAttributes = function ( node, attributes ) {
 		node.setAttribute( attribute, attributes[ attribute ] );
 	}
 };
+
 var getById = function ( arg ) {
 	return typeof this !== undefined && isDOM( this ) && this !== window ?
 	this.getElementById( arg ) :
 	document.getElementById( arg );
 };
+
 var getByClass = function ( arg ) {
 	return typeof this !== undefined && isDOM( this ) && this !== window ?
 	this.getElementsByClassName( arg ) :
 	document.getElementsByClassName( arg );
 };
+
 var isDOMNode = function ( arg ) {
 	return (
 		typeof Node === "object" ?
@@ -20,6 +23,7 @@ var isDOMNode = function ( arg ) {
 		arg && typeof arg === "object" && typeof arg.nodeType === "number" && typeof arg.nodeName==="string"
 	);
 };
+
 var isDOMElement = function ( arg ) {
 	return (
 		typeof HTMLElement === "object" ?
@@ -27,9 +31,11 @@ var isDOMElement = function ( arg ) {
 		arg && typeof arg === "object" && arg !== null && arg.nodeType === 1 && typeof arg.nodeName==="string"
 	);
 };
+
 var isDOM = function ( arg ) {
 	return isDOMNode( arg ) || isDOMElement( arg );
 };
+
 var makeClass = function ( name, constructor, properties ) {
 	name = constructor;
 	for ( var property in properties ) {
@@ -37,4 +43,19 @@ var makeClass = function ( name, constructor, properties ) {
 	}
 	name.prototype = name;
 	return name;
+};
+
+var Class = function ( args ) {
+	var	constructor = args.constructor,
+		static = args.static,
+		prototype = args.prototype || Object.prototype;
+
+	
+//	constructor.prototype = prototype;
+
+	for ( var property in static ) {
+		this[ property ] = static[ property ];
+	}
+
+	return constructor;
 };

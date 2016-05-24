@@ -6,14 +6,14 @@ var App = {
 		Control: false,
 	},
 	view: {
-		svgframe: null,
-		layers: {
-			block: null,
-			link: null,
-			text: null,
-			modal: null,
-			control: null,
-		},
+		svgFrame: null,
+		linkLayer: null,
+		blockLayer: null,
+
+		modalLayer: null,
+
+		controlLayer: null,
+		pointer: null,
 	},
 	askPreventDefault: function ( evt, type, detail ) {
 		var prevent = false;
@@ -59,11 +59,11 @@ var App = {
 	},
 	buildView: function () {
 		var view = this.view;
-		view.svgframe = App.new({
+		view.svgFrame = App.new({
 			type: 'svg',
-			id: 'svgframe',
-			c: 'svgframe',
-			e: 'svgframe',
+			id: 'svgFrame',
+			c: 'svgFrame',
+			e: 'svgFrame',
 			p: document.body,
 			ns: NS.svg,
 			attr: {
@@ -71,45 +71,46 @@ var App = {
 				height: 10000,
 			}
 		});
-		view.layers.link = App.new({
+		view.linkLayer = App.new({
 			type: 'g',
-			id: '',
-			c: '',
-			e: '',
-			p: view.svgframe,
+			id: 'svgLinkLayer',
+			c: 'svgLinkLayer',
+			e: 'svgLinkLayer',
+			p: view.svgFrame,
 			ns: NS.svg,
 			attr: {
-		    }
+			}
 		});
-		view.layers.block = App.new({
+		view.blockLayer = App.new({
 			type: 'g',
-			id: '',
-			c: '',
-			e: '',
-			p: view.svgframe,
+			id: 'svgBlockLayer',
+			c: 'svgBlockLayer',
+			e: 'svgBlockLayer',
+			p: view.svgFrame,
 			ns: NS.svg,
 			attr: {
-		    }
+			}
 		});
-		/*
-		view.layers.modal = App.new({
-			type: 'g',
-			id: '',
-			c: '',
-			e: '',
-			p: view.svgframe,
-			ns: NS.svg,
-			attr: {
-				'pointer-events': 'visiblePainted',
-		    }
+		view.modalLayer = App.new({
+			type: 'div',
+			id: 'modalLayer',
+			c: 'modalLayer',
+			e: 'modalLayer',
+			p: document.body,
 		});
-		*/
-		view.control = App.new({
+		view.controlLayer = App.new({
+			type: 'div',
+			id: 'controlLayer',
+			c: 'controlLayer',
+			e: 'controlLayer',
+			p: document.body,
+		});
+		view.pointer = App.new({
 			type: 'div',
 			id: 'controlVisuals',
 			c: 'controlVisuals',
 			e: 'controlVisuals',
-			p: document.body,
+			p: view.controlLayer,
 		});
 	},
 	new: function ( arg ) {

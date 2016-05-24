@@ -1,19 +1,22 @@
 
 var Link = makeClass ( Link, function ( arg ) {
-
 	this.from = arg.from || Block._list[ arg.from_ID ] || null;
 	this.to = arg.to || Block._list[ arg.to_ID ] || null;
 
 	this.fromPoint = arg.fromPoint;
 	this.toPoint = arg.toPoint;
 
-	this.from && this.from.links.push( this );
-	this.to && this.to.links.push( this );
+	this.fromType = arg.fromType || null;
+	this.toType = arg.toType || null;
+
+	this.fromType == 'block' && this.from.links.push( this );
+	this.toType == 'block' && this.to.links.push( this );
 
 	this.width = arg.width || this.W;
 	this.style = arg.style || '';
+	this.text = 'Sample text';
+
 	this.view = {
-		baseline: null,
 		line: null,
 		outline: null,
 		textline: null,
@@ -24,18 +27,22 @@ var Link = makeClass ( Link, function ( arg ) {
 	this._list.push( this );
 }, {
 	_list: [],
-	W: 3,
 	toString: function () {
 		return JSON.stringify( this.getSaveableData() );
 	},
 	getSaveableData: function () {
 		with ( this ) {
 			return {
-				from_ID: Block._list.indexOf( from ),
+				from_ID: fromType == 'block' ? Block._list.indexOf( from ) : null,
+				from: fromType == 'point' ? JSON.stringify( from ) : null,
 				fromPoint: fromPoint,
-				to_ID: Block._list.indexOf( to ),
+				fromType: fromType,
+				to_ID: toType == 'block' ? Block._list.indexOf( to ) : null,
+				to: toType == 'point' ? JSON.stringify( to ) : null,
 				toPoint: toPoint,
+				toType: toType,
 				width: width,
+				text: text,
 				style: style,
 			};
 		};
@@ -84,49 +91,53 @@ var Link = makeClass ( Link, function ( arg ) {
 		this.buildConnectorStyle('tail');
 	},
 	buildLine: function ( ) {
-		var shape = App.new({
-			type: 'path',
-			events: 'svgLink',
-			p: App.view.layers.link,
-			ns: NS.svg,
-		});
-		this.view.line = shape;
-		this.view.line._owner = this;
+		if ( App.view.linkLayer ) {
+			var shape = App.new({
+				type: 'path',
+				events: 'svgLink',
+				p: App.view.linkLayer,
+				ns: NS.svg,
+			});
+			this.view.line = shape;
+			this.view.line._owner = this;
+		} else {
+			App.warn( 'Can\'t find link parent layer, aborting visuals.' );
+		}
 	},
 	buildLineAttribs: function ( ) {
 		var
-		a = this.from != null ? this.from.getAttachPoint( this.fromPoint ) : { x: 0, y: 0 },
-		b = this.to != null ? this.to.getAttachPoint( this.toPoint ) : { x: 0, y: 0 },
-		A = this.from != null ? {
+		a = this.fromType == 'block'
+			? this.from.getAttachPoint( this.fromPoint )
+			: v2d.add( this.fromPoint, this.from ),
+
+		b = this.toType == 'block'
+			? this.to.getAttachPoint( this.toPoint )
+			: v2d.add( this.toPoint, this.to ),
+
+		A = this.fromType == 'block' ? {
 			x: this.from.dims.x,
 			y: this.from.dims.y,
 			w: this.from.dims.w,
 			h: this.from.dims.h,
 		} : {
-			x: 0,
-			y: 0,
+			x: this.form.x,
+			y: this.form.y,
 			w: 0,
 			h: 0,
 		},
-		B = this.to != null ? {
+		B = this.toType == 'block' ? {
 			x: this.to.dims.x,
 			y: this.to.dims.y,
 			w: this.to.dims.w,
 			h: this.to.dims.h,
 		} : {
-			x: 0,
-			y: 0,
+			x: this.to.x,
+			y: this.to.y,
 			w: 0,
 			h: 0,
 		},
-		ap = this.from != null ? v2d.p( a, A ) : {
-			x: 0,
-			y: 0,
-		},
-		bp = this.to != null ? v2d.p( b, B ) : {
-			x: 0,
-			y: 0,
-		},
+		ap = v2d.p( a, A ),
+		bp = v2d.p( b, B ),
 		BAd = v2d.d( B, A ),
 		bad = v2d.d( b, a );
 
