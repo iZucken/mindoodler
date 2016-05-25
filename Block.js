@@ -1,12 +1,15 @@
 
 var Block = function ( arg ) {
 	var arg = arg || {};
-	var dims = arg.dims || {};
-	this.dims = {
-		x: arg.x || dims.x,
-		y: arg.y || dims.y,
-		w: arg.w || dims.w || Block.last.w,
-		h: arg.h || dims.h || Block.last.h,
+	var dim = arg.dim || {};
+		
+	//with ( arg.dim ) console.log( x, y, w, h );
+
+	this._dim = {
+		x: arg.x || dim.x,
+		y: arg.y || dim.y,
+		w: arg.w || dim.w || Block.last.w,
+		h: arg.h || dim.h || Block.last.h,
 	};
 	this.text = arg.text || Block.last.text;
 	this.shape = arg.shape || Block.last.shape;
@@ -16,8 +19,8 @@ var Block = function ( arg ) {
 		block: null,
 		text: null,
 	};
-	this.buildView();
 	Block.list.push( this );
+	this.buildView();
 };
 
 Block.extend({
@@ -37,13 +40,14 @@ Block.extend({
 		'rectangle': {
 			type: 'rect',
 			attributes: function ( ) {
-				var dims = this.dims;
-				var attributes = {
-					x: dims.x - dims.w / 2,
-					y: dims.y - dims.h / 2,
-					width: dims.w,
-					height: dims.h,
-				}
+				with ( this.dim ) {
+					var attributes = {
+						x: dim.x - dim.w / 2,
+						y: dim.y - dim.h / 2,
+						width: dim.w,
+						height: dim.h,
+					}
+				};
 				return attributes;
 			},
 			attachPoint: function ( arg ) {
@@ -51,19 +55,19 @@ Block.extend({
 				var a = ar / -Math.PI * 180;
 				a = ( a + 360 ) % 360;
 				a = a - a % 90;
-				var x = this.dims.x, y = this.dims.y;
+				var x = this.dim.x, y = this.dim.y;
 				switch ( a ) {
 					case 0:
-						x = this.dims.x + this.dims.w / 2;
+						x = this.dim.x + this.dim.w / 2;
 						break;
 					case 90:
-						y = this.dims.y - this.dims.h / 2;
+						y = this.dim.y - this.dim.h / 2;
 						break;
 					case 180:
-						x = this.dims.x - this.dims.w / 2;
+						x = this.dim.x - this.dim.w / 2;
 						break;
 					case 270:
-						y = this.dims.y + this.dims.h / 2;
+						y = this.dim.y + this.dim.h / 2;
 						break;
 				};
 				return ( { x: x, y: y, a: a, ar: ar } );
@@ -72,38 +76,39 @@ Block.extend({
 		'ellipse': {
 			type: 'ellipse',
 			attributes: function ( ) {
-				var dims = this.dims;
-				var attributes = {
-					cx: dims.x,
-					cy: dims.y,
-					rx: dims.w / 2,
-					ry: dims.h / 2,
-				}
+				with ( this.dim() ) {
+					var attributes = {
+						cx: x,
+						cy: y,
+						rx: w / 2,
+						ry: h / 2,
+					}
+				};
 				return attributes;
 			},
 			attachPoint: function ( arg ) {
 				var ar = Math.atan2( arg.y, arg.x );
 				var a = ( ar + 360 ) % 360;
-				var x = this.dims.x + Math.cos( ar ) * this.dims.w / 2;
-				var y = this.dims.y + Math.sin( ar ) * this.dims.h / 2;
+				var x = this.dim.x + Math.cos( ar ) * this.dim.w / 2;
+				var y = this.dim.y + Math.sin( ar ) * this.dim.h / 2;
 				return ( { x: x, y: y, a: a, ar: ar, offset: arg } );
 			},
 		},
 		'diamond': {
 			type: 'polygon',
 			attributes: function ( ) {
-				var dims = this.dims;
+				var dim = this.dim;
 				var e = {
-					x: dims.x - dims.w / 2,
-					y: dims.y - dims.h / 2,
-					X: dims.x + dims.w / 2,
-					Y: dims.y + dims.h / 2,
+					x: dim.x - dim.w / 2,
+					y: dim.y - dim.h / 2,
+					X: dim.x + dim.w / 2,
+					Y: dim.y + dim.h / 2,
 				};
 				e = [
-					dims.x +','+ e.y,
-					e.x +','+ dims.y,
-					dims.x +','+ e.Y,
-					e.X +','+ dims.y,
+					dim.x +','+ e.y,
+					e.x +','+ dim.y,
+					dim.x +','+ e.Y,
+					e.X +','+ dim.y,
 				];
 				return { points: e };
 			},
@@ -112,19 +117,19 @@ Block.extend({
 				var a = ar / -Math.PI * 180;
 				a = ( a + 360 ) % 360;
 				a = a - a % 90;
-				var x = this.dims.x, y = this.dims.y;
+				var x = this.dim.x, y = this.dim.y;
 				switch ( a ) {
 					case 0:
-						x = this.dims.x + this.dims.w / 2;
+						x = this.dim.x + this.dim.w / 2;
 						break;
 					case 90:
-						y = this.dims.y - this.dims.h / 2;
+						y = this.dim.y - this.dim.h / 2;
 						break;
 					case 180:
-						x = this.dims.x - this.dims.w / 2;
+						x = this.dim.x - this.dim.w / 2;
 						break;
 					case 270:
-						y = this.dims.y + this.dims.h / 2;
+						y = this.dim.y + this.dim.h / 2;
 						break;
 				};
 				return ( { x: x, y: y, a: a, ar: ar } );
@@ -169,7 +174,7 @@ Block.prototype.extend({
 	getSaveableData: function () {
 		with ( this ) {
 			return {
-				dims: dims,
+				dim: dim,
 				text: text,
 				shape: shape,
 				style: style,
@@ -184,6 +189,19 @@ Block.prototype.extend({
 		};
 		this.links = null;
 		Block.list.splice( Block.list.indexOf( this ), 1 );
+	},
+	dim: function ( arg ) {
+		if ( typeof arg != 'undefined' ) {
+			with ( this._dim ) {
+				x = arg.x || x || 0;
+				y = arg.y || y || 0;
+				w = arg.w || w || 0;
+				h = arg.h || h || 0;
+			}
+			this.buildAttribs();
+		} else {
+			return this._dim;
+		};
 	},
 	setDims: function ( dims, increment ) {
 		var dimsOwn = this.dims;

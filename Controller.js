@@ -23,20 +23,78 @@ var Controller = {
 		x: 0,
 		y: 0,
 	},
-	dragOrigin: {
+	_dragOrigin: {
 		x: 0,
 		y: 0,
 	},
-	resizeOrigin: {
+	_dragDelta: {
+		x: 0,
+		y: 0,
+	},
+	_drag: null,
+	set drag ( arg ) {
+		if ( arg != null ) {
+			console.log ( arg );
+			with ( this ) {
+				_dragOrigin.x = arg.x;
+				_dragOrigin.y = arg.y;
+				_dragDelta.x = _dragOrigin.x - pos.x;
+				_dragDelta.y = _dragOrigin.y || pos.y;
+			};
+			this._drag = this._hold;
+		} else {
+			with ( this._dragOrigin ) {
+				x = null;
+				y = null;
+			};
+			with ( this._dragDelta ) {
+				x = null;
+				y = null;
+			};
+			this._drag = null;
+		}
+	},
+	get drag ( ) {
+		with ( this ) {
+			return {
+				//x: _dragOrigin.x + ( _dragOrigin.x - pos.x ) + _dragDelta.x,
+				//y: _dragOrigin.y + ( _dragOrigin.y - pos.y ) + _dragDelta.y,
+				x: _dragOrigin.x,
+				y: _dragOrigin.y,
+			};
+		};
+	},
+	_holdOrigin: {
 		x: 0,
 		y: 0,
 		w: 0,
 		h: 0,
 	},
+	_hold: null,
+	set hold ( arg ) {
+		if ( arg != null ) {
+			with ( this._holdOrigin ) {
+				x = arg.dim.x || arg.x;
+				y = arg.dim.y || arg.y;
+				w = arg.dim.w || arg.w;
+				h = arg.dim.h || arg.h;
+			};
+			this._hold = arg;
+		} else {
+			with ( this._holdOrigin ) {
+				x = null;
+				y = null;
+				w = null;
+				h = null;
+			};
+			this._hold = null;
+		}
+	},
+	get hold ( ) {
+		return this._hold;
+	},
 	hover: null,
-	hold: null,
 	free: true,
-	drags: null,
 	resizes: null,
 	linksTo: null,
 	linksFrom: null,

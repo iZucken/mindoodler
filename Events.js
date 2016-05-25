@@ -22,19 +22,31 @@ var Events = {
 				},
 			},
 		},
-		grab: {
+		resize: {
 			states: {
 				start: function ( arg ) {
-					Controller.hold = arg.target;
-					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
+					Controller.mode = 'resize';
+				},
+				move: function ( arg ) {
+				},
+				stop: function ( arg ) {
+					Controller.mode = 'default';
+				},
+			},
+		},
+		drag: {
+			states: {
+				grab: function ( arg ) {
+					Controller.hold = arg.target._owner;
+					Controller.drag = Controller.pos;
 					Controller.mode = 'drag';
 				},
 				move: function ( arg ) {
-					Controller.hold._owner.setDims( Controller.deltaDrag(), true );
-					Controller.setDragOrigin( Controller.pos.x, Controller.pos.y );
+					Controller.hold.dim( Controller.drag );
 				},
-				stop: function ( arg ) {
+				drop: function ( arg ) {
 					Controller.hold = null;
+					Controller.drag = null;
 					Controller.mode = 'default';
 				},
 			},
@@ -145,7 +157,7 @@ var Events = {
 					case 1:
 						Events.proxy( {
 							event: event,
-							handler: 'grab',
+							handler: 'drag',
 							state: 'move',
 							params: { },
 						} );
@@ -172,8 +184,8 @@ var Events = {
 			mouseup: function ( event ) {
 				( event.button == 0 ) && Events.proxy( {
 					event: event,
-					handler: 'grab',
-					state: 'stop',
+					handler: 'drag',
+					state: 'drop',
 				} );
 				( event.button == 2 ) && Events.proxy( {
 					event: event,
@@ -248,8 +260,8 @@ var Events = {
 				event.preventDefault();
 				( event.button == 0 ) && Events.proxy( {
 					event: event,
-					handler: 'grab',
-					state: 'start',
+					handler: 'drag',
+					state: 'grab',
 					params: { type: 'block', target: this },
 				} );
 				( event.button == 1 ) && Events.proxy( {

@@ -58,7 +58,7 @@ Link.prototype.extend({
 		};
 	},
 	destroy: function () {
-		vthis.clearView();
+		this.clearView();
 		this.from && this.from.links.splice( this.from.links.indexOf( this ), 1 );
 		this.to && this.to.links.splice( this.to.links.indexOf( this ), 1 );
 		Link.list.splice( Link.list.indexOf( this ), 1 );
@@ -126,10 +126,10 @@ Link.prototype.extend({
 			: v2d.add( this.toPoint, this.to ),
 
 		A = this.fromType == 'block' ? {
-			x: this.from.dims.x,
-			y: this.from.dims.y,
-			w: this.from.dims.w,
-			h: this.from.dims.h,
+			x: this.from.dim.x,
+			y: this.from.dim.y,
+			w: this.from.dim.w,
+			h: this.from.dim.h,
 		} : {
 			x: this.from.x,
 			y: this.from.y,
@@ -137,10 +137,10 @@ Link.prototype.extend({
 			h: 0,
 		},
 		B = this.toType == 'block' ? {
-			x: this.to.dims.x,
-			y: this.to.dims.y,
-			w: this.to.dims.w,
-			h: this.to.dims.h,
+			x: this.to.dim.x,
+			y: this.to.dim.y,
+			w: this.to.dim.w,
+			h: this.to.dim.h,
 		} : {
 			x: this.to.x,
 			y: this.to.y,
