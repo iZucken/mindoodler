@@ -15,13 +15,27 @@ var Controller = {
 	},
 	x: 0,
 	y: 0,
-	pos: {
+	_pos: {
 		x: 0,
 		y: 0,
 	},
-	lastPos: {
+	_lastPos: {
 		x: 0,
 		y: 0,
+	},
+	pos: function ( arg ) {
+		if ( typeof arg != 'undefined' ) {
+			with ( this ) {
+				_lastPos.x = _pos.x;
+				_lastPos.y = _pos.y;
+				_pos.x = arg.x;
+				_pos.y = arg.y;
+			}
+			App.view.pointer.style.top = arg.y;
+			App.view.pointer.style.left = arg.x;
+		} else {
+			return this._pos;
+		} 
 	},
 	_dragOrigin: {
 		x: 0,
@@ -32,37 +46,31 @@ var Controller = {
 		y: 0,
 	},
 	_drag: null,
-	set drag ( arg ) {
-		if ( arg != null ) {
-			console.log ( arg );
-			with ( this ) {
-				_dragOrigin.x = arg.x;
-				_dragOrigin.y = arg.y;
-				_dragDelta.x = _dragOrigin.x - pos.x;
-				_dragDelta.y = _dragOrigin.y || pos.y;
-			};
-			this._drag = this._hold;
-		} else {
-			with ( this._dragOrigin ) {
-				x = null;
-				y = null;
-			};
-			with ( this._dragDelta ) {
-				x = null;
-				y = null;
-			};
-			this._drag = null;
-		}
-	},
-	get drag ( ) {
+	drag: function ( arg ) {
 		with ( this ) {
-			return {
-				//x: _dragOrigin.x + ( _dragOrigin.x - pos.x ) + _dragDelta.x,
-				//y: _dragOrigin.y + ( _dragOrigin.y - pos.y ) + _dragDelta.y,
-				x: _dragOrigin.x,
-				y: _dragOrigin.y,
-			};
-		};
+			if ( typeof arg != 'undefined' ) {
+				if ( arg != null ) {
+					if ( _drag == null ) {
+						_drag = _hold;
+						_dragDelta.x = _holdOrigin.x - _pos.x;
+						_dragDelta.y = _holdOrigin.y - _pos.y;
+						_dragOrigin.x = _pos.x;
+						_dragOrigin.y = _pos.y;
+					}
+				} else {
+					_dragOrigin.x = null;
+					_dragOrigin.y = null;
+					_dragDelta.x = null;
+					_dragDelta.y = null;
+					_drag = null;
+				}
+			} else {
+				return {
+					x: _pos.x + _dragDelta.x,
+					y: _pos.y + _dragDelta.y,
+				};
+			}
+		}
 	},
 	_holdOrigin: {
 		x: 0,
@@ -71,27 +79,33 @@ var Controller = {
 		h: 0,
 	},
 	_hold: null,
-	set hold ( arg ) {
-		if ( arg != null ) {
-			with ( this._holdOrigin ) {
-				x = arg.dim.x || arg.x;
-				y = arg.dim.y || arg.y;
-				w = arg.dim.w || arg.w;
-				h = arg.dim.h || arg.h;
-			};
-			this._hold = arg;
-		} else {
-			with ( this._holdOrigin ) {
-				x = null;
-				y = null;
-				w = null;
-				h = null;
-			};
-			this._hold = null;
+	hold: function ( arg ) {
+		with ( this ) {
+			if ( typeof arg != 'undefined' ) {
+				if ( arg != null ) {
+					if ( _hold == null ) {
+						with ( _holdOrigin ) {
+							var dim = arg.dim();
+							x = dim.x || arg.x;
+							y = dim.y || arg.y;
+							w = dim.w || 0;
+							h = dim.h || 0;
+						};
+						_hold = arg;
+					}
+				} else {
+					with ( _holdOrigin ) {
+						x = null;
+						y = null;
+						w = null;
+						h = null;
+					};
+					_hold = null;
+				}
+			} else {
+				return _hold;
+			}
 		}
-	},
-	get hold ( ) {
-		return this._hold;
 	},
 	hover: null,
 	free: true,
@@ -101,28 +115,6 @@ var Controller = {
 	text: false,
 	stage: null,
 	state: 'default',
-	view: null,
-	buildView: function () {
-		this.view = App.new(
-		);
-	},
-	setPos: function ( x, y ) {
-		this.pos.x = x;
-		this.pos.y = y;
-		App.view.pointer.style.top = this.pos.y;
-		App.view.pointer.style.left = this.pos.x;
-	},
-	setDragOrigin: function ( x, y ) {
-		this.dragOrigin.x = x;
-		this.dragOrigin.y = y;
-	},
-	deltaDrag: function ( ) {
-		return v2d.d( this.dragOrigin, this.pos );
-	},
-	deltaResize: function ( ) {
-		var d = v2d.d( this.pos, this.resizeOrigin );
-		return { w: this.resizeOrigin.w + d.x, h: this.resizeOrigin.h + d.y };
-	},
 	setState: function ( newState ) {
 		this.state = newState;
 		// document.body.style.cursor = this.styles[ newState ]

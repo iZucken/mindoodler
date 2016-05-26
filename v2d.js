@@ -39,20 +39,20 @@ var v2d = {
 			}
 		}
 	},
-	pers: function ( V1, V2 ) { // perpendiculars of V1V2
-		var d = v2d.d( V1, V2 );
+	pers: function ( A, B ) { // perpendiculars of line AB
+		var d = v2d.d( A, B );
 		return {
 			cw: {
-				x: V1.x + -d.y,
-				y: V1.y + d.x,
+				x: A.x + -d.y,
+				y: A.y + d.x,
 			},
 			ccw: {
-				x: V1.x + d.y,
-				y: V1.y + -d.x,
+				x: A.x + d.y,
+				y: A.y + -d.x,
 			},
 		};
 	},
-	lint: function ( a, A, b, B ) { // intersection of lines
+	lint: function ( a, A, b, B ) { // intersection of lines aA and bB
 		var	ad = {
 			x: A.x - a.x,
 			y: A.y - a.y,
@@ -75,13 +75,16 @@ var v2d = {
 			b: n2 > 0 && n2 < 1,
 		};
 	},
-	add: function ( A, B ) { // just a summ of coords
+	add: function ( A, B ) { // just a sum of line's coords
 		return {
 			x: A.x + B.x,
 			y: A.y + B.y,
 		};
 	},
-	m: function ( A ) { // modulo coords
+	mul: function ( V, l ) { // yep
+		return { x: V.x * l, y: V.y * l };
+	},
+	m: function ( A ) { // modulo of coords
 		return {
 			x: A.x < 0 ? -A.x : A.x,
 			y: A.y < 0 ? -A.y : A.y,
@@ -92,5 +95,28 @@ var v2d = {
 		var cw = v2d.lint( V1, pers.cw, T1, T2 );
 		var ccw = v2d.lint( V1, pers.ccw, T1, T2 );
 		return cw.b ? cw : ccw.b ? ccw : false;
+	},
+	test: function ( ) {
+		if ( arguments.length == 0 ) {
+			App.error( 'No arguments!' );
+			return false;
+		} else {
+			for ( var i = 0, l = arguments.length; i < l; i++ ) {
+				if ( typeof arguments[i] == 'undefined' ) {
+					App.error( 'Undefined variable as argument '+(i+1) );
+					return false;
+				} else if ( !isObject( arguments[i] ) ) {
+					App.error( 'Not an object as argument '+(i+1) );
+					return false;		
+				} else if ( !( arguments[i].hasOwnProperty( 'x' ) && arguments[i].hasOwnProperty( 'y' ) ) ) {
+					App.error( 'Missing some properties of argument '+(i+1) );
+					return false;
+				} else if ( isNaN( arguments[i].x ) || isNaN( arguments[i].y ) ) {
+					App.error( 'Some properties are NaN on argument '+(i+1) );
+					return false;
+				}
+			}
+		}
+		return true;
 	},
 };

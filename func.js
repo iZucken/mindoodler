@@ -59,3 +59,10 @@ var Class = function ( args ) {
 
 	return constructor;
 };
+
+var isObject = function ( arg ) {
+	if ( (typeof A === "object") && (A !== null) ) {
+		return false;
+	}
+	return true;
+}

@@ -1,5 +1,9 @@
 
 var App = {
+	log: true,
+	logWarns: true,
+	logErrors: true,
+	throwErrors: false,
 	key: {
 		Shift: false,
 		Alt: false,
@@ -9,9 +13,7 @@ var App = {
 		svgFrame: null,
 		linkLayer: null,
 		blockLayer: null,
-
 		modalLayer: null,
-
 		controlLayer: null,
 		pointer: null,
 	},
@@ -51,11 +53,19 @@ var App = {
 		};
 		//window.localStorage.clear( 'last-session' );
 	},
-	log: function ( args ) {
-		true && console.log.apply( console, arguments );
+	log: function ( ) {
+		if ( App.log ) console.log.apply( console, arguments );
 	},
-	warn: function ( args ) {
-		true && console.warn.apply( console, arguments );
+	warn: function ( ) {
+		if ( App.logWarns ) console.warn.apply( console, arguments );
+	},
+	error: function ( ) {
+		if ( App.logErrors ) {
+			console.error.apply( console, arguments );
+			if ( App.throwErrors ) {
+				throw arguments;
+			}
+		}
 	},
 	buildView: function () {
 		var view = this.view;

@@ -115,42 +115,28 @@ Link.prototype.extend({
 		}
 	},
 	buildLineAttribs: function ( ) {
-		App.log( this.fromPoint );
-		var
-		a = this.fromType == 'block'
-			? this.from.getAttachPoint( this.fromPoint )
-			: v2d.add( this.fromPoint, this.from );
-		var 
-		b = this.toType == 'block'
-			? this.to.getAttachPoint( this.toPoint )
-			: v2d.add( this.toPoint, this.to ),
+		with ( this ) {
+			var A = fromType == 'block'
+				? from.dim()
+				: from;
+			var B = toType == 'block'
+				? to.dim()
+				: to;
+			var BAd = v2d.d( B, A );
+			var a = fromType == 'block'
+				? from.getAttachPoint( fromPoint )
+				: v2d.add( fromPoint, from );
+			var b = toType == 'block'
+				? to.getAttachPoint( toPoint )
+				: v2d.add( toPoint, to );
 
-		A = this.fromType == 'block' ? {
-			x: this.from.dim.x,
-			y: this.from.dim.y,
-			w: this.from.dim.w,
-			h: this.from.dim.h,
-		} : {
-			x: this.from.x,
-			y: this.from.y,
-			w: 0,
-			h: 0,
-		},
-		B = this.toType == 'block' ? {
-			x: this.to.dim.x,
-			y: this.to.dim.y,
-			w: this.to.dim.w,
-			h: this.to.dim.h,
-		} : {
-			x: this.to.x,
-			y: this.to.y,
-			w: 0,
-			h: 0,
-		},
-		ap = v2d.p( a, A ),
+
+			v2d.test( fromPoint, a, b, A, B );
+		}
+		var ap = v2d.p( a, A ),
 		bp = v2d.p( b, B ),
-		BAd = v2d.d( B, A ),
 		bad = v2d.d( b, a );
+
 
 		var BAl = v2d.l( BAd );
 
@@ -219,16 +205,20 @@ Link.prototype.extend({
 
 		var attr = '';
 		attr += ( aXb.a && aXb.b ) ? svgen.line( M, aXb ) : '' ;
+		
 		attr += svgen.line( a, p[0] );
 		attr += svgen.line( b, p[3] );
 		attr += svgen.line( M, p[1] );
 		attr += svgen.line( M, p[2] );
+		
 		attr += svgen.line( Acw, Accw );
 		attr += svgen.line( Acw, Bccw );
 		attr += svgen.line( Bcw, Bccw );
 		attr += svgen.line( Accw, Bcw );
+
 		attr += ( aopM ) ? svgen.line( p[0], aopM ) : '' ;
 		attr += ( bopM ) ? svgen.line( p[3], bopM ) : '' ;
+		
 		attr += ( apM && apM.b ) ? svgen.line( a, apM ) : '' ;
 		attr += ( bpM && bpM.b ) ? svgen.line( b, bpM ) : '' ;
 
