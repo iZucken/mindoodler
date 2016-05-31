@@ -136,8 +136,6 @@ var Events = {
 		},
 	},
 
-
-
 	proxy: function ( arg ) {
 		var	handler = arg.handler ? Events.handlers[ arg.handler ] : Events.handlers.default,
 			event = arg.event || null,

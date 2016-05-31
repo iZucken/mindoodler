@@ -72,6 +72,12 @@ var Controller = {
 			}
 		}
 	},
+	size: function ( arg ) {
+		with ( this ) {
+
+		}
+		_pos.
+	},
 	_holdOrigin: {
 		x: 0,
 		y: 0,
@@ -115,27 +121,4 @@ var Controller = {
 	text: false,
 	stage: null,
 	state: 'default',
-	setState: function ( newState ) {
-		this.state = newState;
-		// document.body.style.cursor = this.styles[ newState ]
-	},
-	calculateState: function () {
-		var state = 'default';
-
-		this.free = ! ( this.drags || this.resizes || this.links );
-
-		state = this.hover && this.free ? 'grab' : state;
-
-		state = App.key.Control && this.free ? 'newElement' : state;
-
-		state = App.key.Shift && this.free ? 'linking' : state;
-
-		state = App.key.Alt && this.free ? 'deleteUniversal' : state;
-
-		state = this.drags ? 'drop' : state;
-
-		this.setState( state );
-
-		return state;
-	},
 }

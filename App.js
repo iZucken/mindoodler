@@ -26,9 +26,6 @@ var App = {
 
 		return prevent ? evt.preventDefault() : false;
 	},
-	update: function ( arg ) {
-		Controller.calculateState( );
-	},
 	save: function ( arg ) {
 		/*
 			I can't just use json.serialize here
