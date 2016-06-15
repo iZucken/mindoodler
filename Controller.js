@@ -73,10 +73,12 @@ var Controller = {
 		}
 	},
 	size: function ( arg ) {
+		/*
 		with ( this ) {
 
 		}
 		_pos.
+		*/
 	},
 	_holdOrigin: {
 		x: 0,
