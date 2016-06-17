@@ -1,5 +1,9 @@
 
 var Controller = {
+
+
+	
+	// TO DELETE
 	styles: {
 		// col-resize copy crosshair grab help move pointer progress wait
 		'loading': 'wait',
@@ -15,6 +19,10 @@ var Controller = {
 	},
 	x: 0,
 	y: 0,
+
+
+
+	// 
 	_pos: {
 		x: 0,
 		y: 0,
@@ -37,6 +45,10 @@ var Controller = {
 			return this._pos;
 		} 
 	},
+
+
+
+	// 
 	_dragOrigin: {
 		x: 0,
 		y: 0,
@@ -72,6 +84,8 @@ var Controller = {
 			}
 		}
 	},
+
+
 	size: function ( arg ) {
 		/*
 		with ( this ) {
@@ -80,6 +94,8 @@ var Controller = {
 		_pos.
 		*/
 	},
+
+
 	_holdOrigin: {
 		x: 0,
 		y: 0,
@@ -115,6 +131,11 @@ var Controller = {
 			}
 		}
 	},
+
+
+
+
+
 	hover: null,
 	free: true,
 	resizes: null,

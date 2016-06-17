@@ -114,6 +114,7 @@ Link.prototype.extend({
 			App.warn( 'Can\'t find link parent layer, aborting visuals.' );
 		}
 	},
+	// holy HELL its huge and still only half-done
 	buildLineAttribs: function ( ) {
 		with ( this ) {
 			var A = fromType == 'block'

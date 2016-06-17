@@ -1,11 +1,6 @@
 
-var Events = {
+var Actions = {
 
-	/*
-	
-		Pseudo-events
-	
-	*/
 
 	handlers: {
 		default: {
@@ -137,7 +132,7 @@ var Events = {
 	},
 
 	proxy: function ( arg ) {
-		var	handler = arg.handler ? Events.handlers[ arg.handler ] : Events.handlers.default,
+		var	handler = arg.handler ? Actions.handlers[ arg.handler ] : Actions.handlers.default,
 			event = arg.event || null,
 			state = arg.state || 'default'
 			params = arg.params || {};
@@ -167,20 +162,20 @@ var Events = {
 				// if ( event.ctrlKey == true && ( cwrk.indexOf( event.which ) != -1 )) {
 				// 	event.preventDefault();
 				// };
-				Events.proxy( { event: event } );
+				Actions.proxy( { event: event } );
 			},
 			keyup: function ( event ) {
 				var key = event.key || event.keyIdentifier;
 				App.key[ key ] = App.key[ key ] != undefined ? false : undefined;
 				App.askPreventDefault( event, 'key', key );
-				Events.proxy( { event: event } );
+				Actions.proxy( { event: event } );
 			},
 			mousemove: function ( event ) {
 				Controller.pos( { x: event.clientX, y: event.clientY } );
 				if ( Controller.hold() ) {
 					switch ( event.buttons ) {
 						case 1:
-							Events.proxy( {
+							Actions.proxy( {
 								event: event,
 								handler: 'drag',
 								state: 'move',
@@ -188,7 +183,7 @@ var Events = {
 							} );
 							break;
 						case 2:
-							Events.proxy( {
+							Actions.proxy( {
 								event: event,
 								handler: 'resize',
 								state: 'move',
@@ -197,7 +192,7 @@ var Events = {
 							break;
 						case 4:
 							var type = Controller.hoverType == 'block' ? 'block' : 'point';
-							Events.proxy( {
+							Actions.proxy( {
 								event: event,
 								handler: 'link',
 								state: 'to',
@@ -208,12 +203,12 @@ var Events = {
 				}
 			},
 			mouseup: function ( event ) {
-				( event.button == 0 ) && Events.proxy( {
+				( event.button == 0 ) && Actions.proxy( {
 					event: event,
 					handler: 'drag',
 					state: 'drop',
 				} );
-				( event.button == 2 ) && Events.proxy( {
+				( event.button == 2 ) && Actions.proxy( {
 					event: event,
 					handler: 'resize',
 					state: 'stop',
@@ -237,7 +232,7 @@ var Events = {
 		},
 		svgFrame: {
 			mouseup: function ( event ) {
-				( event.button == 1 ) && Events.proxy( {
+				( event.button == 1 ) && Actions.proxy( {
 					event: event,
 					handler: 'link',
 					state: 'finish',
@@ -247,14 +242,14 @@ var Events = {
 		},
 		svgLink: {
 			mouseleave: function ( event ) {
-				Events.proxy( {
+				Actions.proxy( {
 					event: event,
 					handler: 'hover',
 					state: 'stop',
 				} );
 			},
 			mouseenter: function ( event ) {
-				Events.proxy( {
+				Actions.proxy( {
 					event: event,
 					handler: 'hover',
 					state: 'start',
@@ -268,7 +263,7 @@ var Events = {
 			wheel: function ( event ) {
 			},
 			mouseup: function ( event ) {
-				( event.button == 1 ) && Events.proxy( {
+				( event.button == 1 ) && Actions.proxy( {
 					event: event,
 					handler: 'link',
 					state: 'finish',
@@ -279,7 +274,7 @@ var Events = {
 				event.preventDefault();
 				switch ( event.button ) {
 					case 0:
-						Events.proxy( {
+						Actions.proxy( {
 							event: event,
 							handler: 'drag',
 							state: 'grab',
@@ -287,7 +282,7 @@ var Events = {
 						} );
 						break;
 					case 1:
-						Events.proxy( {
+						Actions.proxy( {
 							event: event,
 							handler: 'link',
 							state: 'begin',
@@ -295,7 +290,7 @@ var Events = {
 						} );
 						break;
 					case 2:
-						Events.proxy( {
+						Actions.proxy( {
 							event: event,
 							handler: 'resize',
 							state: 'start',
@@ -305,7 +300,7 @@ var Events = {
 				}
 			},
 			mouseleave: function ( event ) {
-				Events.proxy( {
+				Actions.proxy( {
 					event: event,
 					handler: 'hover',
 					state: 'stop',
@@ -313,7 +308,7 @@ var Events = {
 				} );
 			},
 			mouseenter: function ( event ) {
-				Events.proxy( {
+				Actions.proxy( {
 					event: event,
 					handler: 'hover',
 					state: 'start',
