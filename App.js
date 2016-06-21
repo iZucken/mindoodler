@@ -168,9 +168,9 @@ var App = {
 		eventsList = Array.isArray( eventsList ) ? eventsList : [ eventsList ];
 		for ( var type in eventsList ) {
 			var typeName = eventsList[ type ];
-			if ( Events.list[ typeName ] ) {
-				for ( var event in Events.list[ typeName ] ) {
-					element.addEventListener( event, Events.list[ typeName ][ event ] );
+			if ( Actions.list[ typeName ] ) {
+				for ( var event in Actions.list[ typeName ] ) {
+					element.addEventListener( event, Actions.list[ typeName ][ event ] );
 				}
 			}
 		}

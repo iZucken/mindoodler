@@ -142,7 +142,7 @@ var Actions = {
 			params.event = event;
 			handler.states[ state ]( params );
 		}
-		App.update( event );
+		//App.update( event );
 		//event && event.preventDefault();
 	},
 
