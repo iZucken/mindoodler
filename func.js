@@ -49,14 +49,10 @@ var Class = function ( args ) {
 	var	constructor = args.constructor,
 		static = args.static,
 		prototype = args.prototype || Object.prototype;
-
-	
 //	constructor.prototype = prototype;
-
 	for ( var property in static ) {
 		this[ property ] = static[ property ];
 	}
-
 	return constructor;
 };
 

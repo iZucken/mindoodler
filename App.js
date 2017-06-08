@@ -148,7 +148,7 @@ var App = {
 		}
 
 		style && e.setAttribute( 'style', style );
-		attrList && domSetAttributes( e, attrList );
+		attrList && setAttributes( e, attrList );
 		eventsList && App.bindEvents( e, eventsList );
 		
 		if ( childs ) {

@@ -19,10 +19,25 @@ body {
 	margin: 0px;
 	overflow: hidden;
 
-	cursor: none;
+	 /*cursor: none; */
 }
 
 
+.blockText {
+	display: block;
+	position: absolute;
+	overflow: hidden;
+}
+
+.textLayer {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
 
 .modalLayer {
 	display: block;
@@ -162,12 +177,12 @@ body {
 	padding: 0;
 	vertical-align: top;
 }
-.controls .05c {
+.controls.05c {
 	width: 12%;
 }
-.controls .1c {
+.controls.1c {
 	width: 24%;
 }
-.controls .2c {
+.controls.2c {
 	width: 49%;
 }
