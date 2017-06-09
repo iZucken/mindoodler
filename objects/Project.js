@@ -7,14 +7,24 @@ var Project = function ( arg ) {
 
 Project.extend({
 	styles: {
-		lines: {
+		blocks: {
+
+		},
+		links: {
 			solid: {},
 			dashed: {},
-			dotted: {},
-			double: {}
+			dotted: {}
 		},
-		blocks: {},
-		links: {},
+		plugs: {
+
+		}
+	},
+	shapes: {
+		blocks: {
+
+		},
+		links: {
+		},
 		plugs: {
 			arrow: {
 				build: function () {
@@ -25,7 +35,9 @@ Project.extend({
 						ns: NS.svg
 					});
 				},
-				points: function ( arg ) {
+				destroy: function () {
+				},
+				update: function ( arg ) {
 					var e = {
 						x: dim.x - dim.w / 2,
 						y: dim.y - dim.h / 2,
@@ -38,11 +50,6 @@ Project.extend({
 						5 +','+ -10,
 					];
 					return { points: e };
-				},
-				rotate: function ( arg ) {
-					var origin = arg.origin;
-					var origin = arg.origin;
-
 				}
 			}
 		}
