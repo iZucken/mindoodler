@@ -19,11 +19,11 @@ var Block = function ( arg ) {
 		block: null,
 		text: null
 	};
-	this.uid = Project.uid.get();
+	this.uid = Project.uid();
 	Block.list.push( this );
-
+	/*
 	this.extend( RenderableObject );
-
+	*/
 	this.queRender();
 };
 
@@ -336,4 +336,4 @@ Block.prototype.extend({
 	}
 });
 
-Block.prototype.extend(RenderablePrototype);
+Block.prototype.extend(Renderable);

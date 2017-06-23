@@ -1,8 +1,6 @@
 
 App.bindEvents( window, 'window' );
-App.view.init();
-App.render.start();
-App.control.enable();
+App.init();
 Ctx.enter( Ctx.list.baseMode );
 
 App.load();

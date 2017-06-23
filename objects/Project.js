@@ -3,12 +3,13 @@ var Project = function ( arg ) {
 	this.layers = [];
 	this.blocks = [];
 	this.links = [];
+	Project.current = this;
 };
 
 Project.extend({
+	current: null,
 	styles: {
 		blocks: {
-
 		},
 		links: {
 			solid: {},
@@ -16,12 +17,10 @@ Project.extend({
 			dotted: {}
 		},
 		plugs: {
-
 		}
 	},
 	shapes: {
 		blocks: {
-
 		},
 		links: {
 		},
@@ -37,40 +36,30 @@ Project.extend({
 				},
 				destroy: function () {
 				},
-				update: function ( arg ) {
-					var e = {
-						x: dim.x - dim.w / 2,
-						y: dim.y - dim.h / 2,
-						X: dim.x + dim.w / 2,
-						Y: dim.y + dim.h / 2
-					};
-					e = [
+				attributes: function () {
+					var e = [
 						0 +','+ 0,
 						-5 +','+ -10,
-						5 +','+ -10,
+						5 +','+ -10
 					];
 					return { points: e };
 				}
 			}
 		}
 	},
-	references: {
-		media: {
-			urls: {
-				self: 'self'
-			}
-		},
-		packs: [
-			'default',
-		]
-	},
+	uid: function(){
+		return Project.current.uid.get();
+	}
+});
+
+Project.prototype.extend({
+	initialize: function () {},
+	load: null,
+	save: null,
 	uid: {
 		_last: 0,
 		get: function () {
 			return this._last++;
 		}
 	}
-});
-
-Project.prototype.extend({
 });

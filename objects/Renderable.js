@@ -1,9 +1,5 @@
 
-var RenderableObject = {
-	_toRender: false,
-}
-
-var RenderablePrototype = {
+var Renderable = {
 	render: function () {
 		if ( this._toRender ) {
 			this._toRender = false;
@@ -17,4 +13,4 @@ var RenderablePrototype = {
 		App.render.que( this );
 		this._toRender = true;
 	}
-}
+};

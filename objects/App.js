@@ -1,5 +1,6 @@
 
 App = {
+	project: null,
 	new: function ( arg ) {
 		var doc = arg.doc || document, // to create element in a different document
 			type = arg.type || 'div',
@@ -53,6 +54,12 @@ App = {
 			}
 
 		}
+	},
+	init: function () {
+		this.project = new Project();
+		this.view.init();
+		this.render.start();
+		this.control.enable();
 	},
 	view: {
 		svgFrame: null,
@@ -221,5 +228,5 @@ App = {
 			} );
 		};
 		//window.localStorage.clear( 'last-session' );
-	}
+	},
 }

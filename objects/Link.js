@@ -6,13 +6,14 @@ var Link = function ( arg ) {
 	this.to = arg.to || Block.list[ arg.to_ID ];
 	this.fromPoint = arg.fromPoint || v2d.nil;
 	this.toPoint = arg.toPoint || v2d.nil;
-	this.fromType = arg.fromType || arg.from.type || 'point';
-	this.toType = arg.toType || arg.to.type || 'point';
 	this.width = arg.width || Link.last.width;
 	this.style = arg.style || Link.last.style;
 	this.text = Link.last.text;
 	this.unfinalized = arg.unfinalize || arg.unfin || false;
-	this.uid = Project.uid.get();
+	this.uid = Project.uid();
+
+	this.tail = new Plug({ link: this, attach: this.from });
+	this.head = new Plug({ link: this, attach: this.from });
 
 	this.cache = {};
 	this.view = {
@@ -23,7 +24,9 @@ var Link = function ( arg ) {
 		head: null,
 		tail: null
 	};
+	/*
 	this.extend( RenderableObject );
+	*/
 	this.queRender();
 	Link.list.push( this );
 	if ( !this.unfinalized ) {
@@ -47,6 +50,13 @@ Link.extend({
 			'fill': 'none',
 			'stroke': 'rgba(50,50,50,1)',
 			'stroke-dasharray': ' 8, 8 '
+		}
+	},
+	destroyUnlinked: function () {
+		for ( link in Link._list ) {
+			if ( Link.list[ link ].from == null || Link.list[ link ].to == null ) {
+				Link.list[ link ].destroy();
+			}
 		}
 	}
 });
@@ -79,13 +89,6 @@ Link.prototype.extend({
 			this.to && this.to.links.splice( this.to.links.indexOf( this ), 1 );
 		}
 		Link.list.splice( Link.list.indexOf( this ), 1 );
-	},
-	destroyUnlinked: function () {
-		for ( link in Link._list ) {
-			if ( Link.list[ link ].from == null || Link.list[ link ].to == null ) {
-				Link.list[ link ].destroy();
-			}
-		}
 	},
 	finalize: function () {
 		this.fromType == 'block' && this.from.links.push( this );
@@ -389,10 +392,7 @@ Link.prototype.extend({
 		}
 		result += 'stroke-width:'+this.width+';';
 		this.view.line.setAttribute( 'style', result );
-	},
-	update: function () {
-		;
 	}
 });
 
-Link.prototype.extend(RenderablePrototype);
+Link.prototype.extend(Renderable);

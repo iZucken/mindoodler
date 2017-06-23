@@ -84,8 +84,13 @@ Ctx.list = {
 		with ( Ctx ) {
 			switch ( action ) {
 				case Acts.generalMovement:
+					data.target.update({
+						dim: v2d.sum( Controller.pos(), data.delta ),
+					});
+					/*
 					data.target.dim( v2d.sum( Controller.pos(), data.delta ) );
 					data.target.updateLinks( );
+					*/
 					break;
 				case Acts.releaseHold:
 					enter( list.baseMode );
