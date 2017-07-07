@@ -4,6 +4,7 @@ var Ctx = function () {
 };
 
 Ctx.enter = function ( arg ) {
+	//console.log( arg );
 	Ctx.current = arg;
 };
 
@@ -17,7 +18,7 @@ Ctx.list = {
 				case Acts.pickBlock:
 					data.target = arg.target._owner;
 					data.time = Date.now();
-					data.pos = data.target.dim();
+					data.pos = v2d( data.target.x, data.target.y );
 					data.cpos = { x: Controller.pos().x, y: Controller.pos().y };
 					data.delta = v2d.delta( Controller.pos(), data.target.dim() );
 					enter( list.blockActionFilter );
@@ -25,7 +26,7 @@ Ctx.list = {
 				case Acts.resizeBlock:
 					data.target = arg.target._owner;
 					var pos = Controller.pos(),
-						dim = data.target.dim(),
+						dim = v2d( data.target.x, data.target.y ),
 						size = { x: dim.w / 2, y: dim.h / 2 };
 					data.extend({
 						dim: dim,
@@ -84,13 +85,11 @@ Ctx.list = {
 		with ( Ctx ) {
 			switch ( action ) {
 				case Acts.generalMovement:
+					var pos = v2d.sum( Controller.pos(), data.delta );
 					data.target.update({
-						dim: v2d.sum( Controller.pos(), data.delta ),
+						x: pos.x,
+						y: pos.y,
 					});
-					/*
-					data.target.dim( v2d.sum( Controller.pos(), data.delta ) );
-					data.target.updateLinks( );
-					*/
 					break;
 				case Acts.releaseHold:
 					enter( list.baseMode );

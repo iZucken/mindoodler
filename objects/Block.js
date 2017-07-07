@@ -1,16 +1,12 @@
 
 var Block = function ( arg ) {
 	var arg = arg || {};
-	var dim = arg.dim || {};
-
-	this.type = 'block';
-
-	this._dim = {
-		x: arg.x || dim.x || 0,
-		y: arg.y || dim.y || 0,
-		w: arg.w || dim.w || Block.last.w,
-		h: arg.h || dim.h || Block.last.h
-	};
+	var pos = arg.pos || {};
+	var size = arg.size || {};
+	this.x = arg.x || pos.x || 0;
+	this.y = arg.y || pos.y || 0;
+	this.w = arg.w || size.w || Block.last.w;
+	this.h = arg.h || size.h || Block.last.h;
 	this.text = arg.text || Block.last.text;
 	this.shape = arg.shape || Block.last.shape;
 	this.style = arg.style || Block.last.style;
@@ -65,39 +61,37 @@ Block.extend({
 		rectangle: {
 			type: 'rect',
 			attributes: function ( ) {
-				var dim = this.dim();
 				var attributes = {
-					x: dim.x - dim.w / 2,
-					y: dim.y - dim.h / 2,
-					width: dim.w,
-					height: dim.h
+					x: this.x - this.w / 2,
+					y: this.y - this.h / 2,
+					width: this.w,
+					height: this.h
 				}
 				return attributes;
 			},
 			attachPoint: function ( arg ) {
-				var dim = this.dim();
 				var ar = v2d.angle( arg );
 				var a = v2d.rad2deg( ar );
 				var as = v2d.angle_step4( a );
-				var x = dim.x, y = dim.y;
+				var x = this.x, y = this.y;
 				switch ( as ) {
 					case 0:
-						x = dim.x + dim.w / 2;
+						x = this.x + this.w / 2;
 						break;
 					case 1:
-						y = dim.y - dim.h / 2;
+						y = this.y - this.h / 2;
 						break;
 					case 2:
-						x = dim.x - dim.w / 2;
+						x = this.x - this.w / 2;
 						break;
 					case 3:
-						y = dim.y + dim.h / 2;
+						y = this.y + this.h / 2;
 						break;
 				};
 				return ( { x: x, y: y, as: as, a: a, ar: ar } );
 			},
 			textArea: function ( arg ) {
-				with ( this.dim() ) {
+				with ( this ) {
 					return {
 						left: x - w/2,
 						top: y - h/2,
@@ -110,25 +104,23 @@ Block.extend({
 		ellipse: {
 			type: 'ellipse',
 			attributes: function ( ) {
-				var dim = this.dim();
 				var attributes = {
-					cx: dim.x,
-					cy: dim.y,
-					rx: dim.w / 2,
-					ry: dim.h / 2
+					cx: this.x,
+					cy: this.y,
+					rx: this.w / 2,
+					ry: this.h / 2
 				}
 				return attributes;
 			},
 			attachPoint: function ( arg ) {
-				var dim = this.dim();
 				var ar = Math.atan2( arg.y, arg.x );
 				var a = ( ar + 360 ) % 360;
-				var x = dim.x + Math.cos( ar ) * dim.w / 2;
-				var y = dim.y + Math.sin( ar ) * dim.h / 2;
+				var x = this.x + Math.cos( ar ) * this.w / 2;
+				var y = this.y + Math.sin( ar ) * this.h / 2;
 				return ( { x: x, y: y, a: a, ar: ar, offset: arg } );
 			},
 			textArea: function ( arg ) {
-				with ( this.dim() ) {
+				with ( this ) {
 					return {
 						left: x - w/4,
 						top: y - h/4,
@@ -141,46 +133,44 @@ Block.extend({
 		diamond: {
 			type: 'polygon',
 			attributes: function ( ) {
-				var dim = this.dim();
 				var e = {
-					x: dim.x - dim.w / 2,
-					y: dim.y - dim.h / 2,
-					X: dim.x + dim.w / 2,
-					Y: dim.y + dim.h / 2
+					x: this.x - this.w / 2,
+					y: this.y - this.h / 2,
+					X: this.x + this.w / 2,
+					Y: this.y + this.h / 2
 				};
 				e = [
-					dim.x +','+ e.y,
-					e.x +','+ dim.y,
-					dim.x +','+ e.Y,
-					e.X +','+ dim.y,
+					this.x +','+ e.y,
+					e.x +','+ this.y,
+					this.x +','+ e.Y,
+					e.X +','+ this.y,
 				];
 				return { points: e };
 			},
 			attachPoint: function ( arg ) {
-				var dim = this.dim();
 				var ar = ( Math.atan2( arg.y, arg.x ) - Math.PI / 4 );
 				var a = ar / -Math.PI * 180;
 				a = ( a + 360 ) % 360;
 				a = a - a % 90;
-				var x = dim.x, y = dim.y;
+				var x = this.x, y = this.y;
 				switch ( a ) {
 					case 0:
-						x = dim.x + dim.w / 2;
+						x = this.x + this.w / 2;
 						break;
 					case 90:
-						y = dim.y - dim.h / 2;
+						y = this.y - this.h / 2;
 						break;
 					case 180:
-						x = dim.x - dim.w / 2;
+						x = this.x - this.w / 2;
 						break;
 					case 270:
-						y = dim.y + dim.h / 2;
+						y = this.y + this.h / 2;
 						break;
 				};
 				return ( { x: x, y: y, a: a, ar: ar } );
 			},
 			textArea: function ( arg ) {
-				with ( this.dim() ) {
+				with ( this ) {
 					return {
 						left: x - w/4,
 						top: y - h/4,
@@ -236,6 +226,19 @@ Block.prototype.extend({
 			};
 		};
 	},
+	pos: function () {
+		if ( arguments ) {
+			return { x: this.x, y: this.y }
+		}
+	},
+	size: function () {
+		if ( arguments ) {
+			return { w: this.w, h: this.h }
+		}
+	},
+	dim: function () {
+		return { x: this.x, y: this.y, w: this.w, h: this.h }
+	},
 	destroy: function () {
 		this.clearView();
 		var links = this.links;
@@ -245,27 +248,42 @@ Block.prototype.extend({
 		this.links = null;
 		Block.list.splice( Block.list.indexOf( this ), 1 );
 	},
-	dim: function ( arg ) {
-		if ( typeof arg != 'undefined' ) {
-			with ( this._dim ) {
-				x = arg.x || x || 0;
-				y = arg.y || y || 0;
-				w = arg.w || w || 0;
-				h = arg.h || h || 0;
-			}
+	update: function ( arg ) {
+		var arg = arg || {};
+		var x = arg.x || this.x;
+		var y = arg.y || this.y;
+		var w = arg.w || this.w;
+		var h = arg.h || this.h;
+		var changed = [
+			false, //position
+			false, //size
+			false //visual styles
+		];
+		if ( x != this.x || y != this.y ) {
+			changed[0] = true;
+			this.x = x;
+			this.y = y;
+		}
+		if ( w != this.w || h != this.h ) {
+			changed[1] = true;
+			this.w = w;
+			this.h = h;
+		}
+		if ( changed[0] || changed[1] ) {
+			this.updateLinks( changed );
+		}
+		if ( changed[0] + changed[1] + changed[2]  ) {
 			this.queRender();
-		} else {
-			return this._dim;
 		}
 	},
-	updateLinks: function ( ) {
+	updateLinks: function ( vals ) {
 		for ( var index in this.links ) {
-			this.links[ index ].queRender();
+			this.links[ index ].update({ block: this });
 		}
 	},
 	getAttachPoint: function ( arg ) {
 		//return Block.shapes[ this.shape ].attachPoint.bind( this )( arg );
-		return Block.getAttachPoint( this.dim(), arg );
+		return Block.getAttachPoint( this, arg );
 	},
 	toggleShape: function ( backwards ) {
 		var keys = Block.shapes.keys(), toggle = keys.indexOf( this.shape ) + ( backwards );

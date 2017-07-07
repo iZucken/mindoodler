@@ -5,7 +5,7 @@ Ctx.enter( Ctx.list.baseMode );
 
 App.load();
 
-/*
+
 A = new Block({x: 100, y: 100, shape: 'diamond' })
 
 B = new Block({x: 300, y: 300, w: 200, h: 200, shape: 'diamond' })
@@ -34,4 +34,3 @@ CD = new Link({
 	fromPoint: { x: 50, y: 0 },
 	toPoint: { x: 0, y: 50 }
 })
-*/

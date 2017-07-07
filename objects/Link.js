@@ -1,6 +1,5 @@
 
 var Link = function ( arg ) {
-	this.type = 'link';
 	//if ( !( arg.from || arg.from_ID && arg.to ) ) throw "Not enough parameters for a link";
 	this.from = arg.from || Block.list[ arg.from_ID ];
 	this.to = arg.to || Block.list[ arg.to_ID ];
@@ -11,10 +10,6 @@ var Link = function ( arg ) {
 	this.text = Link.last.text;
 	this.unfinalized = arg.unfinalize || arg.unfin || false;
 	this.uid = Project.uid();
-
-	this.tail = new Plug({ link: this, attach: this.from });
-	this.head = new Plug({ link: this, attach: this.from });
-
 	this.cache = {};
 	this.view = {
 		path: null,
@@ -24,6 +19,8 @@ var Link = function ( arg ) {
 		head: null,
 		tail: null
 	};
+	this.from.links.push( this );
+	this.to.links.push( this );
 	/*
 	this.extend( RenderableObject );
 	*/
@@ -109,6 +106,19 @@ Link.prototype.extend({
 				view[ item ].remove();
 				view[ item ] = null;
 			}
+		}
+	},
+	update: function ( arg ) {
+		var block = arg.block || false;
+		var changed = [
+			false, // geometry
+			false, // link's style
+		];
+		if ( block ) {
+			changed[0] = true;
+		}
+		if ( changed[0] + changed[1] ) {
+			this.queRender();
 		}
 	},
 	buildView: function ( ) {
