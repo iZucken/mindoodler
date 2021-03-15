@@ -1,22 +1,3 @@
-
-/*
-Acts = {
-	generalMovement: Act(),
-	blockMovement: Act(),
-	pickBlock: Act(),
-	resizeBlock: Act(),
-	releaseHold: Act(),
-	releaseOverBlock: Act(),
-	makeLink: Act(),
-	toggleStyle: Act(),
-	blockCreationStart: Act(),
-	blockCreationFinish: Act(),
-	// keys
-	controlKeyHold: Act(),
-	controlKeyRelease: Act()
-};
-*/
-
 Acts = {
 	generalMovement: null,
 	blockMovement: null,
