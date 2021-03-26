@@ -1,49 +1,70 @@
-import {useState, useEffect} from "react";
+import {useContext, useState} from "react";
+import Block from "./Block";
+import {KeyContext} from "./KeyProvider";
+import Link from "./Link";
+import {observer} from "mobx-react";
+import TextLayer from "./TextLayer";
 
-function App() {
-    let [drag, setDrag] = useState(false);
-    let [hover, setHover] = useState(false);
-    let [keys, setKeys] = useState({init: true});
-    let [position, setPosition] = useState({x: 50, y: 50});
-    let handleKey = e => {
-        setKeys({...keys, [e.code]: true})
-    }
-    let handleKeyRelease = e => {
-        setKeys({...keys, [e.code]: false})
-    }
-    useEffect(() => {
-        document.addEventListener("keydown", handleKey, false)
-        document.addEventListener("keyup", handleKeyRelease, false)
-        return () => {
-            document.removeEventListener("keydown", handleKey, false)
-            document.removeEventListener("keyup", handleKeyRelease, false)
+function App({editorStore}) {
+    let keys = useContext(KeyContext);
+    let [drag, setDrag] = useState(-1);
+    let blockMouseDown = id => setDrag(id)
+    let blockMouseUp = () => {}
+    const createBlock = (x, y) => {
+        if (!keys.ControlLeft) {
+            return
         }
-    });
-
-    return <svg width="10000" height="10000"
-                onMouseMove={e => drag ? setPosition({
-                    x: e.clientX,
-                    y: e.clientY,
-                }) : null}
-                onMouseUp={() => setDrag(false)}>
-        <text x={position.x} y={position.y} style={{color: "black"}}>
-            {Object.entries(keys)
-                .filter(([k, v]) => v)
-                .map(([k, v]) => k)
-                .join()}
-        </text>
-        <g>
-            <rect x={position.x} y={position.y} width="100" height="100"
-                  style={{
-                      fill: "rgba(200,200,200,1)",
-                      stroke: "rgba(50,50,50,1)",
-                      strokeWidth: hover ? 4 : 2
-                  }}
-                  onMouseEnter={() => setHover(true)}
-                  onMouseLeave={() => setHover(false)}
-                  onMouseDown={() => setDrag(true)}/>
-        </g>
-    </svg>;
+        editorStore.addBlock({
+            text: `${x}:${y}`,
+            position: {
+                x: x,
+                y: y
+            },
+            size: {
+                width: 100,
+                height: 100
+            }
+        })
+    }
+    return <>
+        <svg style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            top: "0px",
+            left: "0px",
+            overflow: "hidden",
+        }}
+             onMouseMove={e => drag >= 0
+                 ? editorStore.moveBlock(drag, e.clientX, e.clientY) : null}
+             onMouseUp={() => setDrag(-1)}
+             onClick={(e) => createBlock(e.clientX, e.clientY)}
+        >
+            <defs>
+                <marker id='head' orient='auto'
+                        markerWidth='16' markerHeight='16'
+                        markerUnits="userSpaceOnUse"
+                        refX='16' refY='8'>
+                    <path d='M0,0 V16 L16,8 Z' fill='black'/>
+                </marker>
+            </defs>
+            <svg>
+                {editorStore.blocks.map(
+                    block => block.links.map(
+                        (toId, id) => <Link
+                            key={toId}
+                            from={editorStore.blocks[block.id]}
+                            to={editorStore.blocks[toId]}/>
+                    ))}
+                {editorStore.blocks.map(
+                    (block, id) =>
+                        <Block key={id} block={block}
+                               onMouseDown={blockMouseDown}
+                               onMouseUp={blockMouseUp}/>)}
+            </svg>
+        </svg>
+        <TextLayer blocks={editorStore.blocks}/>
+    </>;
 }
 
-export default App;
+export default observer(App);
